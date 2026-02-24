@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://kdkee8ftds16"]
+
+[ext_resource type="Texture2D" uid="uid://bsa5nj7t7dmu5" path="res://Assets/Environment/HDRI.hdr" id="1_y72vu"]
+[ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://Scripts/Camera.gd" id="2_4pecq"]
+[ext_resource type="Script" uid="uid://b341be8g3a68i" path="res://Scripts/TileLoader.gd" id="3_u3d4x"]
+[ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://Scripts/RoutePath.gd" id="4_4pecq"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
+panorama = ExtResource("1_y72vu")
+energy_multiplier = 1.2
+
+[sub_resource type="Sky" id="Sky_ia1lp"]
+sky_material = SubResource("PanoramaSkyMaterial_sasra")
+
+[sub_resource type="Environment" id="Environment_ia1lp"]
+background_mode = 2
+background_energy_multiplier = 0.8
+sky = SubResource("Sky_ia1lp")
+fog_depth_curve = 4.0
+fog_depth_end = 2000.0
+
+[sub_resource type="Environment" id="Environment_sub"]
+sky = SubResource("Sky_ia1lp")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.5
+reflected_light_source = 2
+glow_normalized = true
+glow_intensity = 3.91
+glow_strength = 0.7
+glow_bloom = 0.45
+glow_blend_mode = 0
+
+[node name="Root" type="Node" unique_id=2131926408]
+
+[node name="Interface" type="Control" parent="." unique_id=980477917]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="3D" type="Node3D" parent="." unique_id=268510305]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="3D" unique_id=1936734181]
+environment = SubResource("Environment_ia1lp")
+
+[node name="Camera3D" type="Camera3D" parent="3D" unique_id=1706513994]
+transform = Transform3D(1, 0, 0, 0, 0.57357645, 0.81915206, 0, -0.81915206, 0.57357645, 0, 300, 200)
+script = ExtResource("2_4pecq")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="3D" unique_id=1492631642]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="3D/SubViewportContainer" unique_id=898323668]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(432, 960)
+render_target_update_mode = 4
+
+[node name="SubWorldEnvironment" type="WorldEnvironment" parent="3D/SubViewportContainer/SubViewport" unique_id=258320311]
+environment = SubResource("Environment_sub")
+
+[node name="SubCamera" type="Camera3D" parent="3D/SubViewportContainer/SubViewport" unique_id=540527891]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="3D/SubViewportContainer/SubViewport" unique_id=521961862]
+transform = Transform3D(0.8660254, 0.3535534, -0.3535534, 0, 0.7071068, 0.7071068, 0.5, -0.61237246, 0.61237246, 0, 114.349625, 0)
+light_energy = 3.2
+light_specular = 2.0
+
+[node name="TileMap" type="Node3D" parent="3D/SubViewportContainer/SubViewport" unique_id=1816449438]
+script = ExtResource("3_u3d4x")
+
+[node name="RoutePath" type="Node3D" parent="3D/SubViewportContainer/SubViewport" unique_id=2058587148]
+script = ExtResource("4_4pecq")

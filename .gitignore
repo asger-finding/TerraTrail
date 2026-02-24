@@ -1,0 +1,14 @@
+# Map data
+data/
+
+# Planetiler
+scripts/planetiler.jar
+
+# Godot
+game/.godot/
+game/android/
+
+# Backend
+backend/node_modules/
+backend/dist/
+backend/bun.lock
