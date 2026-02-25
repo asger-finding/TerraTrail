@@ -1,8 +1,8 @@
 # Map data
-data/
+backend/data/
 
 # Planetiler
-scripts/planetiler.jar
+backend/scripts/planetiler.jar
 
 # Godot
 game/.godot/

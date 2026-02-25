@@ -49,7 +49,7 @@ fi
 
 # Disse mapper skal oprettes og ekistere
 # for systemd ReadWritePaths
-mkdir -p "$INSTALL_DIR/data" "$INSTALL_DIR/backend/.keys"
+mkdir -p "$INSTALL_DIR/backend/data" "$INSTALL_DIR/backend/.keys"
 chown -R "$VPS_USER:$VPS_USER" "$INSTALL_DIR"
 
 echo "Installerer dependencies ..."
@@ -60,10 +60,10 @@ if [ ! -f "$INSTALL_DIR/backend/.env" ]; then
     echo "Opretter standard .env ..."
     cat > "$INSTALL_DIR/backend/.env" <<'ENV'
 PORT=3000
-# MBTILES_PATH=/opt/terratrail/lfs/map.mbtiles
+# MBTILES_PATH=/opt/terratrail/backend/lfs/map.mbtiles
 # JWT_KEYS_DIR=/opt/terratrail/backend/.keys
 # JWT_EXPIRATION=24h
-# USER_DB_PATH=/opt/terratrail/data/users.db
+# USER_DB_PATH=/opt/terratrail/backend/data/users.db
 ENV
     chown "$VPS_USER:$VPS_USER" "$INSTALL_DIR/backend/.env"
 fi

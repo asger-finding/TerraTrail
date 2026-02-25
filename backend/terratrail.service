@@ -34,7 +34,7 @@ RestartSec=5
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/terratrail/backend/.keys /opt/terratrail/data /opt/terratrail/lfs
+ReadWritePaths=/opt/terratrail/backend/.keys /opt/terratrail/backend/data /opt/terratrail/backend/lfs
 PrivateTmp=true
 
 EnvironmentFile=-/opt/terratrail/backend/.env

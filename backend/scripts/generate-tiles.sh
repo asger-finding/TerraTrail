@@ -7,10 +7,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BACKEND_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$BACKEND_ROOT/.." && pwd)"
 
-SOURCES_DIR="$PROJECT_ROOT/data/sources"
-OUTPUT_DIR="$PROJECT_ROOT/lfs"
+SOURCES_DIR="$BACKEND_ROOT/data/sources"
+OUTPUT_DIR="$BACKEND_ROOT/lfs"
+mkdir -p "$OUTPUT_DIR"
 PLANETILER_JAR="$SCRIPT_DIR/planetiler.jar"
 
 OSM_FILE="$SOURCES_DIR/denmark-latest.osm.pbf"
