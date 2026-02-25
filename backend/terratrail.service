@@ -1,0 +1,43 @@
+# TerraTrail systemd service
+#
+# For at lave setup på en VPS (vi bruger contabo):
+# 1. Klon repo to /opt/terratrail
+# 2. Lav systembruger med rigtig ejerskab:
+#      sudo useradd -r -s /usr/sbin/nologin terratrail
+#      sudo chown -R terratrail:terratrail /opt/terratrail
+# 3. Installer bun (https://bun.sh) og link:
+#      curl -fsSL https://bun.sh/install | bash
+#      sudo ln -s /root/.bun/bin/bun /usr/local/bin/bun
+# 5. Installer dependencies:
+#      cd /opt/terratrail/backend && sudo -u terratrail bun install
+# 6. Opret /opt/terratrail/backend/.env for at overrskriv env variabler
+# 7. Installer og start:
+#      sudo cp /opt/terratrail/backend/terratrail.service /etc/systemd/system/
+#      sudo systemctl daemon-reload
+#      sudo systemctl enable --now terratrail
+#
+# Tjek logs med:
+#   journalctl -u terratrail -f
+
+[Unit]
+Description=TerraTrail Backend
+After=network.target
+
+[Service]
+Type=simple
+User=terratrail
+Group=terratrail
+WorkingDirectory=/opt/terratrail/backend
+ExecStart=/usr/local/bin/bun run src/index.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/terratrail/backend/.keys /opt/terratrail/data /opt/terratrail/lfs
+PrivateTmp=true
+
+EnvironmentFile=-/opt/terratrail/backend/.env
+
+[Install]
+WantedBy=multi-user.target

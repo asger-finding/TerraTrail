@@ -15,6 +15,11 @@ run/main_scene="uid://kdkee8ftds16"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+PlayerState="*res://Scripts/Globals/PlayerState.gd"
+Backend="*res://Scripts/Globals/Backend.gd"
+
 [display]
 
 window/size/viewport_width=432

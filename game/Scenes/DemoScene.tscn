@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://kdkee8ftds16"]
 
-[ext_resource type="Texture2D" uid="uid://bsa5nj7t7dmu5" path="res://Assets/Environment/HDRI.hdr" id="1_y72vu"]
-[ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://Scripts/Camera.gd" id="2_4pecq"]
-[ext_resource type="Script" uid="uid://b341be8g3a68i" path="res://Scripts/TileLoader.gd" id="3_u3d4x"]
-[ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://Scripts/RoutePath.gd" id="4_4pecq"]
+[ext_resource type="Texture2D" uid="uid://bsa5nj7t7dmu5" path="res://Assets/Environment/HDRI.hdr" id="1_juerm"]
+[ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://Scripts/Camera.gd" id="2_8axnw"]
+[ext_resource type="Script" uid="uid://b341be8g3a68i" path="res://Scripts/TileLoader.gd" id="3_prbvp"]
+[ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://Scripts/RoutePath.gd" id="4_q6fnx"]
+[ext_resource type="PackedScene" uid="uid://drnef8r5g03dq" path="res://Scenes/Components/Register.tscn" id="5_0q1xx"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
-panorama = ExtResource("1_y72vu")
+panorama = ExtResource("1_juerm")
 energy_multiplier = 1.2
 
 [sub_resource type="Sky" id="Sky_ia1lp"]
@@ -32,12 +33,6 @@ glow_blend_mode = 0
 
 [node name="Root" type="Node" unique_id=2131926408]
 
-[node name="Interface" type="Control" parent="." unique_id=980477917]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="3D" type="Node3D" parent="." unique_id=268510305]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="3D" unique_id=1936734181]
@@ -45,7 +40,7 @@ environment = SubResource("Environment_ia1lp")
 
 [node name="Camera3D" type="Camera3D" parent="3D" unique_id=1706513994]
 transform = Transform3D(1, 0, 0, 0, 0.57357645, 0.81915206, 0, -0.81915206, 0.57357645, 0, 300, 200)
-script = ExtResource("2_4pecq")
+script = ExtResource("2_8axnw")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="3D" unique_id=1492631642]
 anchors_preset = 15
@@ -74,7 +69,16 @@ light_energy = 3.2
 light_specular = 2.0
 
 [node name="TileMap" type="Node3D" parent="3D/SubViewportContainer/SubViewport" unique_id=1816449438]
-script = ExtResource("3_u3d4x")
+script = ExtResource("3_prbvp")
 
 [node name="RoutePath" type="Node3D" parent="3D/SubViewportContainer/SubViewport" unique_id=2058587148]
-script = ExtResource("4_4pecq")
+script = ExtResource("4_q6fnx")
+
+[node name="Interface" type="Control" parent="." unique_id=980477917]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Register" parent="Interface" unique_id=574952929 instance=ExtResource("5_0q1xx")]
+layout_mode = 0

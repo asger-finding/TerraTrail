@@ -1,14 +1,19 @@
 import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+import { config } from './config.js';
 import { MBTilesReader } from './services/mbtiles.js';
 import { createTileRouter } from './routes/tiles.js';
 import { createRouteRouter } from './routes/route.js';
-import path from 'path';
+import { createAuthRouter } from './routes/auth.js';
+import { authMiddleware } from './auth/middleware.js';
+import { getKeys } from './auth/keys.js';
 
-const PORT = '3000';
-const MBTILES_PATH = path.resolve(import.meta.dir, '../../data/sjaelland.mbtiles');
+await getKeys();
 
 const app = new Koa();
-const mbtiles = new MBTilesReader(MBTILES_PATH);
+const mbtiles = new MBTilesReader(config.mbtilesPath);
+
+app.use(bodyParser());
 
 app.use(async (ctx, next) => {
     const start = Date.now();
@@ -29,6 +34,12 @@ app.use(async (ctx, next) => {
     }
 });
 
+app.use(authMiddleware);
+
+const authRouter = createAuthRouter();
+app.use(authRouter.routes());
+app.use(authRouter.allowedMethods());
+
 const tileRouter = createTileRouter(mbtiles);
 app.use(tileRouter.routes());
 app.use(tileRouter.allowedMethods());
@@ -37,9 +48,9 @@ const routeRouter = createRouteRouter();
 app.use(routeRouter.routes());
 app.use(routeRouter.allowedMethods());
 
-app.listen(PORT, () => {
-    console.log(`TerraTrail backend kører på http://localhost:${PORT}`);
-    console.log(`MBTiles: ${MBTILES_PATH}`);
+app.listen(config.port, () => {
+    console.log(`TerraTrail backend kører på http://localhost:${config.port}`);
+    console.log(`MBTiles: ${config.mbtilesPath}`);
 });
 
 process.on('SIGINT', () => {

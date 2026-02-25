@@ -1,7 +1,5 @@
 extends Node3D
 
-const TILE_URL := "http://localhost:3000/api/tiles?bbox=12.490756,55.740783,12.595335,55.787135&zoom=12"
-
 const MAT_GROUND := preload("res://Materials/Ground.tres")
 const MAT_LANDCOVER := preload("res://Materials/Landcover.tres")
 const MAT_WATER := preload("res://Materials/Water.tres")
@@ -10,22 +8,24 @@ const MAT_BUILDINGS := preload("res://Materials/Buildings.tres")
 const SHADER_OUTLINE := preload("res://Shaders/Outline.gdshader")
 const SHADER_DISTANCE_FADE := preload("res://Shaders/DistanceFade.gdshader")
 
-var http: HTTPRequest
 var main_camera: Camera3D
 var sub_camera: Camera3D
 
 func _ready() -> void:
-	http = HTTPRequest.new()
-	add_child(http)
-	http.request_completed.connect(_on_request_completed)
-	http.request(TILE_URL)
-
-	print("Requesting tiles...")
-
 	main_camera = get_node("../../../Camera3D")
 	sub_camera = get_node("../SubCamera")
 	_setup_outline()
 	_setup_distance_fade()
+
+	if PlayerState.is_authenticated():
+		_load_tiles()
+	else:
+		PlayerState.authenticated.connect(_load_tiles, CONNECT_ONE_SHOT)
+
+func _load_tiles() -> void:
+	var http := Backend.request_tiles("12.490756,55.740783,12.595335,55.787135", 14)
+	http.request_completed.connect(_on_request_completed)
+	print("Requesting tiles ...")
 
 func _process(_delta: float) -> void:
 	if main_camera and sub_camera:
@@ -36,7 +36,7 @@ func _on_request_completed(result: int, code: int, _headers: PackedStringArray, 
 		push_error("Tile request failed: result=%d code=%d" % [result, code])
 		return
 
-	var decoded: Dictionary = Messagepack.decode(body)
+	var decoded: Dictionary = MessagePack.decode(body)
 	if decoded.status != null:
 		push_error("Failed to decode msgpack: %s" % str(decoded.status))
 		return

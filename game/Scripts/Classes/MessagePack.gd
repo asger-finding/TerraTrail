@@ -1,5 +1,5 @@
 # https://godotengine.org/asset-library/asset/4055
-class_name Messagepack
+class_name MessagePack
 ## Messagepack implementation for Godot 4 in GDScript
 ##
 ## You can find the full spec at: https://github.com/msgpack/msgpack/blob/master/spec.md

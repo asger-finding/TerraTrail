@@ -60,6 +60,22 @@ export interface ParsedTile {
     landcover: ParsedFeature[];
 }
 
+/** Spillerdetaljer returneret fra auth-endpoints og gemt i DB. */
+export interface PlayerDetails {
+    playerId: number;
+    username: string;
+    /** Konto oprettelsestidspunkt (epoch i ms) */
+    created: number;
+    /** Seneste login (epoch i ms) */
+    lastLogin: number;
+}
+
+/** Autentificeret bruger fra JWT-payload, sat på ctx.state.user. */
+export interface AuthUser {
+    playerId: number;
+    username: string;
+}
+
 /** API-respons for `GET /api/route`. Koordinater i meter. */
 export interface RouteResponse {
     origin: { lon: number; lat: number };

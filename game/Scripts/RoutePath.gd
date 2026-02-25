@@ -8,26 +8,17 @@ const ROUTE_Y_OFFSET := 0.5
 const MAT_PATH := preload("res://Materials/Path.tres")
 const MAT_PATH_GLOW := preload("res://Materials/PathGlow.tres")
 
-var route_http: HTTPRequest
-
-func _ready() -> void:
-	route_http = HTTPRequest.new()
-	add_child(route_http)
-	route_http.request_completed.connect(_on_route_completed)
-
 func request_route(origin_lon: float, origin_lat: float) -> void:
-	var url := "http://localhost:3000/api/route?from=%s&to=%s&origin=%s,%s" % [
-		ROUTE_FROM, ROUTE_TO, str(origin_lon), str(origin_lat)
-	]
-	print("Requesting route...")
-	route_http.request(url)
+	var http := Backend.request_route(ROUTE_FROM, ROUTE_TO, origin_lon, origin_lat)
+	http.request_completed.connect(_on_route_completed)
+	print("Requesting route ...")
 
 func _on_route_completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 		push_error("Route request failed: result=%d code=%d" % [result, code])
 		return
 
-	var decoded: Dictionary = Messagepack.decode(body)
+	var decoded: Dictionary = MessagePack.decode(body)
 	if decoded.status != null:
 		push_error("Failed to decode route msgpack: %s" % str(decoded.status))
 		return

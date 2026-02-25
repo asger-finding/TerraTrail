@@ -12,3 +12,6 @@ game/android/
 backend/node_modules/
 backend/dist/
 backend/bun.lock
+backend/.keys/
+backend/.env
+*.db

@@ -10,11 +10,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 SOURCES_DIR="$PROJECT_ROOT/data/sources"
-OUTPUT_DIR="$PROJECT_ROOT/data"
+OUTPUT_DIR="$PROJECT_ROOT/lfs"
 PLANETILER_JAR="$SCRIPT_DIR/planetiler.jar"
 
 OSM_FILE="$SOURCES_DIR/denmark-latest.osm.pbf"
-OUTPUT_FILE="$OUTPUT_DIR/sjaelland.mbtiles"
+OUTPUT_FILE="$OUTPUT_DIR/map.mbtiles"
 
 # Sjællands bounding box (koordinater)
 BOUNDS="10.8,55.1,12.75,56.15"
@@ -26,7 +26,7 @@ if [ ! -f "$OSM_FILE" ]; then
   curl -L -o "$OSM_FILE" "https://download.geofabrik.de/europe/denmark-latest.osm.pbf"
   echo "Downloadd"
 else
-  echo "Denmark OSM file already exists: $OSM_FILE"
+  echo "Danmark OSM file fines allerede: $OSM_FILE"
 fi
 
 # Check Planetiler jar exists

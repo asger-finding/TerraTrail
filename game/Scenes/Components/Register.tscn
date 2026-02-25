@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://drnef8r5g03dq"]
+
+[ext_resource type="Script" uid="uid://tgu8sgxpcnpf" path="res://Scripts/Components/Signup.gd" id="1_gqtna"]
+
+[node name="Register" type="VBoxContainer" unique_id=574952929]
+offset_right = 242.0
+offset_bottom = 116.0
+script = ExtResource("1_gqtna")
+
+[node name="UsernameInput" type="LineEdit" parent="." unique_id=1097197356]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "brugernavn"
+max_length = 23
+
+[node name="PasswordInput" type="LineEdit" parent="." unique_id=781808941]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "adgangskode"
+secret = true
+
+[node name="RegisterButton" type="Button" parent="." unique_id=1303393367]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Opret konto"
+
+[connection signal="button_up" from="RegisterButton" to="." method="_on_submit_signup_button_button_up"]
