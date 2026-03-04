@@ -5,6 +5,7 @@ import { MBTilesReader } from './services/mbtiles.js';
 import { createTileRouter } from './routes/tiles.js';
 import { createRouteRouter } from './routes/route.js';
 import { createAuthRouter } from './routes/auth.js';
+import { createWaypointRouter } from './routes/waypoints.js';
 import { authMiddleware } from './auth/middleware.js';
 import { getKeys } from './auth/keys.js';
 
@@ -47,6 +48,10 @@ app.use(tileRouter.allowedMethods());
 const routeRouter = createRouteRouter();
 app.use(routeRouter.routes());
 app.use(routeRouter.allowedMethods());
+
+const waypointRouter = createWaypointRouter();
+app.use(waypointRouter.routes());
+app.use(waypointRouter.allowedMethods());
 
 app.listen(config.port, () => {
     console.log(`TerraTrail backend kører på http://localhost:${config.port}`);

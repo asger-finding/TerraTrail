@@ -1,5 +1,5 @@
 import Router from '@koa/router';
-import { createUser, authenticateUser } from '../auth/users.js';
+import { createUser, authenticateUser } from '../users/db.js';
 import { signToken } from '../auth/jwt.js';
 
 const USERNAME_RE = /^[A-Za-z0-9_-]{1,23}$/;

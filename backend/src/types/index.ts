@@ -76,6 +76,38 @@ export interface AuthUser {
     username: string;
 }
 
+/** Waypoints som de står i SQLite. */
+export interface WaypointRow {
+    id: number;
+    creator_id: number;
+    title: string;
+    description: string;
+    difficulty: number;
+    latitude: number;
+    longitude: number;
+    qr_secret: string;
+    image_path: string | null;
+    created: number;
+    updated: number;
+    active: number;
+}
+
+/** Waypoint med brugerspecifikke data (isCompleted, isFavourited). */
+export interface WaypointResponse {
+    id: number;
+    creatorId: number;
+    title: string;
+    description: string;
+    difficulty: number;
+    latitude: number;
+    longitude: number;
+    imagePath: string | null;
+    created: number;
+    updated: number;
+    isCompleted: boolean;
+    isFavourited: boolean;
+}
+
 /** API-respons for `GET /api/route`. Koordinater i meter. */
 export interface RouteResponse {
     origin: { lon: number; lat: number };

@@ -1,8 +1,5 @@
-import { Database } from 'bun:sqlite';
-import { config } from '../config.js';
+import { db } from '../db.js';
 import type { PlayerDetails } from '../types/index.js';
-
-const db = new Database(config.userDbPath, { create: true });
 
 db.run(`
     CREATE TABLE IF NOT EXISTS users (
