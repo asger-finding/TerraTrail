@@ -7,7 +7,7 @@ const USERNAME_RE = /^[A-Za-z0-9_-]{1,23}$/;
 export function createAuthRouter(): Router {
     const router = new Router({ prefix: '/api/auth' });
 
-    router.post('/register', async (ctx) => {
+    router.post('/signup', async (ctx) => {
         const { username, password } = ctx.request.body as { username?: string; password?: string };
 
         if (!username || !password) {

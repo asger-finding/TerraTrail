@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dsteqwy1mg2ic"]
+
+[sub_resource type="GDScript" id="GDScript_uw6fr"]
+script/source = "extends Node
+
+func _on_login_button_button_up() -> void:
+	Router.push(\"login\")
+
+func _on_signup_button_button_up() -> void:
+	Router.push(\"signup\")
+"
+
+[node name="Splash" type="Control" unique_id=601142130]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_uw6fr")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1036520372]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=558434690]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="LoginButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=96855974]
+layout_mode = 2
+text = "Login"
+
+[node name="SignupButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1313505029]
+layout_mode = 2
+text = "Sign up"
+
+[connection signal="button_up" from="CenterContainer/VBoxContainer/LoginButton" to="." method="_on_login_button_button_up"]
+[connection signal="button_up" from="CenterContainer/VBoxContainer/SignupButton" to="." method="_on_signup_button_button_up"]

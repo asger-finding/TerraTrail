@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://do6726q06gwx2"]
+
+[sub_resource type="GDScript" id="GDScript_kfrd5"]
+script/source = "extends Node
+
+func _ready():
+	print(Router.meta)
+"
+
+[node name="Main" type="Node" unique_id=95938200]
+script = SubResource("GDScript_kfrd5")

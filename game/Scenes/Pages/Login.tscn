@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://bd6sa0uwarw6u"]
+
+[sub_resource type="GDScript" id="GDScript_1jerj"]
+script/source = "extends Control
+
+@onready var username_input: LineEdit = %UsernameInput
+@onready var password_input: LineEdit = %PasswordInput
+@onready var submit_button: Button = %SubmitLoginButton
+
+func _on_submit_login_button_button_up() -> void:
+	var username := username_input.text.strip_edges()
+	var password := password_input.text
+
+	if username.is_empty() or password.is_empty():
+		push_warning(\"Username og password er påkrævet\")
+		return
+
+	submit_button.disabled = true
+	var result: Dictionary = await Backend.login(username, password)
+	submit_button.disabled = false
+
+	if not result[\"ok\"]:
+		push_warning(\"Login fejl: %s\" % result[\"error\"])
+		return
+
+	PlayerState.set_from_response(result[\"data\"])
+	Router.goto(\"main\")
+
+func _on_back_button_button_up() -> void:
+	Router.back()
+
+func _on_back_button_pressed() -> void:
+	Router.back()
+"
+
+[node name="Login" type="Control" unique_id=1311445200]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_1jerj")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1965493031]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=608384718]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="UsernameInput" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=1472451898]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Brugernavn"
+max_length = 23
+
+[node name="PasswordInput" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=684670421]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Adgangskode"
+secret = true
+
+[node name="SubmitLoginButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1231691453]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Login"
+
+[node name="BackButton" type="Button" parent="." unique_id=442426318]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 94.0
+offset_bottom = 43.0
+text = "← Tilbage"
+
+[connection signal="button_up" from="CenterContainer/VBoxContainer/SubmitLoginButton" to="." method="_on_submit_login_button_button_up"]
+[connection signal="button_up" from="BackButton" to="." method="_on_back_button_button_up"]
+[connection signal="pressed" from="BackButton" to="." method="_on_back_button_pressed"]

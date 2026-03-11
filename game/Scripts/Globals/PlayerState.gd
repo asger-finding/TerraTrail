@@ -12,6 +12,7 @@ func is_authenticated() -> bool:
 	return token != ""
 
 func set_from_response(data: Dictionary) -> void:
+	print("Player authenticated")
 	token = data["token"]
 	var player: Dictionary = data["player"]
 	player_id = int(player["playerId"])

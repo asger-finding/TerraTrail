@@ -22,20 +22,20 @@ void vertex() {
 }
 
 void fragment() {
-	// Reconstruct world position from depth buffer
+	// Rekonstruer verdenspositionen fra depth buffer
 	float depth_raw = texture(depth_tex, SCREEN_UV).r;
 	vec2 ndc_xy = SCREEN_UV * 2.0 - 1.0;
 	vec4 view_pos = INV_PROJECTION_MATRIX * vec4(ndc_xy, depth_raw, 1.0);
 	view_pos.xyz /= view_pos.w;
 	vec3 world_pos = (INV_VIEW_MATRIX * vec4(view_pos.xyz, 1.0)).xyz;
 
-	// Distance from camera
+	// Afstanden fra kameraet
 	float dist = length(world_pos.xz - CAMERA_POSITION_WORLD.xz);
 
-	// Animated hash noise for organic dither pattern
+	// Hash noise, konstant
 	float noise = fract(sin(dot(SCREEN_UV * NOISE_SEED_SCALE, HASH_K)) * HASH_M);
 	float fade = smoothstep(fade_start, fade_end, dist + (noise - 0.5) * NOISE_AMPLITUDE);
 
-	// blend_mul: ALPHA=1 preserves pixel, ALPHA=0 makes it transparent in the SubViewport
+	// Sæt alpha efter fade
 	ALPHA = 1.0 - fade;
 }

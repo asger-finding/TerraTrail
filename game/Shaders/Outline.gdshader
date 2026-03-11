@@ -3,11 +3,11 @@
 // og reagerer kun hvor dybden springer (kanter mellem objekter).
 //
 // Referencer:
-// https://docs.godotengine.org/en/stable/tutorials/shaders/advanced_postprocessing.html
-// https://godotshaders.com/shader/depth-based-outline-shader/
-// https://blogs.love2d.org/content/let-it-glow-dynamically-adding-outlines-characters
-// https://godotshaders.com/shader/high-quality-post-process-outline/
-// https://github.com/jocamar/Godot-Post-Process-Outlines
+// - https://docs.godotengine.org/en/stable/tutorials/shaders/advanced_postprocessing.html
+// - https://godotshaders.com/shader/depth-based-outline-shader/
+// - https://blogs.love2d.org/content/let-it-glow-dynamically-adding-outlines-characters
+// - https://godotshaders.com/shader/high-quality-post-process-outline/
+// - https://github.com/jocamar/Godot-Post-Process-Outlines
 
 shader_type spatial;
 render_mode unshaded, blend_mul, fog_disabled, depth_test_disabled, skip_vertex_transform, cull_disabled;

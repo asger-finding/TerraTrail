@@ -9,7 +9,7 @@ func _ready() -> void:
 	add_child(_http)
 
 func signup(username: String, password: String) -> Dictionary:
-	var url := BASE_URL + "/api/auth/register"
+	var url := BASE_URL + "/api/auth/signup"
 	var body := JSON.stringify({"username": username, "password": password})
 	return await _post(url, body)
 

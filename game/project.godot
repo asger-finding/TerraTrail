@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="TerraTrail"
-run/main_scene="uid://kdkee8ftds16"
+run/main_scene="uid://cesvfjccpdq8u"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 PlayerState="*res://Scripts/Globals/PlayerState.gd"
 Backend="*res://Scripts/Globals/Backend.gd"
+Router="*uid://cyvixmvk2ujju"
 
 [display]
 
