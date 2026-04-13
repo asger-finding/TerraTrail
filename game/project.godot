@@ -26,6 +26,7 @@ Coordinates="*uid://dw61fm1osfmoi"
 
 window/size/viewport_width=432
 window/size/viewport_height=960
+window/handheld/orientation=1
 
 [physics]
 

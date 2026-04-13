@@ -8,6 +8,7 @@ var world_origin_lon: float = 0.0
 var world_origin_lat: float = 0.0
 var player_world_pos: Vector3 = Vector3.ZERO
 var player_heading_rad: float = 0.0
+var camera_distance: float = 200.0
 
 var _origin_set: bool = false
 var _origin_lat_rad: float = 0.0

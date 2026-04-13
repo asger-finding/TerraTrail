@@ -3,12 +3,15 @@ render_mode unshaded, blend_mul, depth_test_disabled, skip_vertex_transform, cul
 
 uniform sampler2D depth_tex : hint_depth_texture;
 
-// Vores dither amplitude - hvor stor er diteringen (skal tilpasses for at skjule quantization)
-const float NOISE_AMPLITUDE = 300.0;
+// Vores dither amplitude for at undgå quantization
+const float NOISE_FRACTION = 0.250;
 
-// Juster start/slut afstand
-uniform float fade_start = 1000.0;
-uniform float fade_end = 2400.0;
+// Juster start/slut afstand (beregnet som summen af afstanden fra spiller + kamera)
+uniform float fade_start = 2000.0;
+uniform float fade_end = 4800.0;
+
+// Spillerens XZ-position i verden (skal opdateres i script)
+uniform vec2 player_pos = vec2(0.0, 0.0);
 
 // Noise hash konstanter
 // Se: https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
@@ -29,12 +32,16 @@ void fragment() {
 	view_pos.xyz /= view_pos.w;
 	vec3 world_pos = (INV_VIEW_MATRIX * vec4(view_pos.xyz, 1.0)).xyz;
 
-	// Afstanden fra kameraet
-	float dist = length(world_pos.xz - CAMERA_POSITION_WORLD.xz);
+	// Sum af afstande fra kamera og spiller
+	float dist_cam = length(world_pos.xz - CAMERA_POSITION_WORLD.xz);
+	float dist_player = length(world_pos.xz - player_pos);
+	float dist_sum = dist_cam + dist_player;
 
-	// Hash noise, konstant
+	// Hash noise
+	// skaleres med fade-bredden så dithering vokser med zoom
 	float noise = fract(sin(dot(SCREEN_UV * NOISE_SEED_SCALE, HASH_K)) * HASH_M);
-	float fade = smoothstep(fade_start, fade_end, dist + (noise - 0.5) * NOISE_AMPLITUDE);
+	float noise_amp = (fade_end - fade_start) * NOISE_FRACTION;
+	float fade = smoothstep(fade_start, fade_end, dist_sum + (noise - 0.5) * noise_amp);
 
 	// Sæt alpha efter fade
 	ALPHA = 1.0 - fade;

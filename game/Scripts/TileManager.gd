@@ -1,5 +1,8 @@
 extends Node3D
 
+signal tile_loaded(tx: int, ty: int, tz: int)
+signal tile_unloaded(tx: int, ty: int, tz: int)
+
 const MAT_GROUND := preload("res://Materials/Ground.tres")
 const MAT_LANDCOVER := preload("res://Materials/Landcover.tres")
 const MAT_WATER := preload("res://Materials/Water.tres")
@@ -8,23 +11,24 @@ const MAT_BUILDINGS := preload("res://Materials/Buildings.tres")
 const SHADER_OUTLINE := preload("res://Shaders/Outline.gdshader")
 const SHADER_DISTANCE_FADE := preload("res://Shaders/DistanceFade.gdshader")
 
-const LOAD_RADIUS: int = 2   # Hvor mange tiles der skal loades om spiller
-const UNLOAD_RADIUS: int = 3 # Hvornår tiles skal frigøres igen
-const DEFAULT_ZOOM: int = 14
+const LOAD_RADIUS: int = 2
+const UNLOAD_RADIUS: int = 3
+const FINE_ZOOM: int = 14
+const ZOOM_DEBOUNCE: float = 1.0
 
 const LAYER_NAMES: PackedStringArray = ["ground", "landcover", "water", "roads", "buildings"]
 
-# Indlæste tiles: key "x_y_z" er en array af MeshInstance3D nodes
 var _loaded_tiles: Dictionary = {}
-# Tiles i fetch-køen eller der bliver bygget
 var _pending_tiles: Dictionary = {}
-# Nuværende tile som spilleren er på
 var _player_tile: Vector3i = Vector3i.ZERO
+var _pending_zoom: int = -1
+var _pending_zoom_time: float = 0.0
 
 var main_camera: Camera3D
 var sub_camera: Camera3D
 var _dir_light: DirectionalLight3D
 var _player: Node3D
+var _fade_material: ShaderMaterial
 
 func _ready() -> void:
 	main_camera = get_node("../../../Camera3D")
@@ -33,21 +37,28 @@ func _ready() -> void:
 	_setup_outline()
 	_setup_distance_fade()
 
-	_player = get_node_or_null("../Player")
-	if _player and _player.has_signal("position_changed"):
-		_player.position_changed.connect(_on_player_moved)
+	_player = get_node("../Player")
+	_player.position_changed.connect(_on_player_moved)
+
+	var container := get_node("../..") as SubViewportContainer
+	container.gui_input.connect(_on_container_gui_input)
 
 	if PlayerState.is_authenticated():
 		_on_authenticated()
 	else:
 		PlayerState.authenticated.connect(_on_authenticated, CONNECT_ONE_SHOT)
 
+func _on_container_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+	if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		main_camera.handle_zoom(event.button_index == MOUSE_BUTTON_WHEEL_UP)
+
 func _on_authenticated() -> void:
 	if not Coordinates.is_origin_set():
-		push_warning("TileManager: origin not set yet")
 		return
 	_player_tile = Coordinates.lon_lat_to_tile(
-		Coordinates.world_origin_lon, Coordinates.world_origin_lat, DEFAULT_ZOOM
+		Coordinates.world_origin_lon, Coordinates.world_origin_lat, _desired_zoom()
 	)
 	_update_tiles()
 
@@ -63,6 +74,27 @@ func _process(_delta: float) -> void:
 	if _dir_light and Coordinates.is_origin_set():
 		_dir_light.global_position.x = Coordinates.player_world_pos.x
 		_dir_light.global_position.z = Coordinates.player_world_pos.z
+	if _fade_material:
+		_fade_material.set_shader_parameter(
+			"player_pos",
+			Vector2(Coordinates.player_world_pos.x, Coordinates.player_world_pos.z)
+		)
+
+	# Zoom-skift fra kamera-afstand med et debounce
+	# så vi ikke fetcher alle zoom niveauer ind imellem
+	if Coordinates.is_origin_set():
+		var z := _desired_zoom()
+		if z != _player_tile.z:
+			var now := Time.get_ticks_msec() / 1000.0
+			if z != _pending_zoom:
+				_pending_zoom = z
+				_pending_zoom_time = now
+			elif now - _pending_zoom_time >= ZOOM_DEBOUNCE:
+				_player_tile = Coordinates.lon_lat_to_tile(_player.mock_lon, _player.mock_lat, z)
+				_update_tiles()
+				_pending_zoom = -1
+		else:
+			_pending_zoom = -1
 
 func _update_tiles() -> void:
 	var zoom := _desired_zoom()
@@ -75,20 +107,26 @@ func _update_tiles() -> void:
 			var key := "%d_%d_%d" % [tx, ty, zoom]
 			desired[key] = Vector3i(tx, ty, zoom)
 
+	# Hent manglende tiles som ikke allerede er fuldt dækket af højere-zoom
 	for key: String in desired:
-		if key not in _loaded_tiles and key not in _pending_tiles:
-			var coord: Vector3i = desired[key]
-			_request_tile(coord.x, coord.y, coord.z, key)
+		if key in _loaded_tiles or key in _pending_tiles:
+			continue
+		var coord: Vector3i = desired[key]
+		if _is_fully_covered(coord.x, coord.y, coord.z):
+			continue
+		_request_tile(coord.x, coord.y, coord.z, key)
 
+	# Frigør tiles hvis afstand til spilleren (i deres eget zoom) er for stor
 	var to_unload: Array[String] = []
 	for key: String in _loaded_tiles:
-		if key not in desired:
-			var parts := key.split("_")
-			var tx := int(parts[0])
-			var ty := int(parts[1])
-			var dist := maxi(absi(tx - _player_tile.x), absi(ty - _player_tile.y))
-			if dist > UNLOAD_RADIUS:
-				to_unload.append(key)
+		var parts := key.split("_")
+		var tx := int(parts[0])
+		var ty := int(parts[1])
+		var tz := int(parts[2])
+		var p_at_z: Vector3i = Coordinates.lon_lat_to_tile(_player.mock_lon, _player.mock_lat, tz)
+		var dist := maxi(absi(tx - p_at_z.x), absi(ty - p_at_z.y))
+		if dist > UNLOAD_RADIUS:
+			to_unload.append(key)
 
 	for key: String in to_unload:
 		_unload_tile(key)
@@ -101,16 +139,9 @@ func _request_tile(tx: int, ty: int, tz: int, key: String) -> void:
 	http.request_completed.connect(
 		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 			http.queue_free()
-
 			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 				_pending_tiles.erase(key)
 				return
-
-			if key in _loaded_tiles:
-				_pending_tiles.erase(key)
-				return
-
-			# Offload decode + mesh building to worker thread
 			WorkerThreadPool.add_task(_decode_and_build.bind(body, key))
 	)
 
@@ -145,7 +176,6 @@ func _decode_and_build(body: PackedByteArray, key: String) -> void:
 func _pending_tiles_erase(key: String) -> void:
 	_pending_tiles.erase(key)
 
-# Bygger ArrayMesh fra de rå array
 func _build_layer_mesh(tile: Dictionary, layer_name: String) -> Dictionary:
 	var layer: Dictionary = tile.get(layer_name, {})
 	var verts_flat: Array = layer.get("vertices", [])
@@ -191,7 +221,6 @@ func _build_layer_mesh(tile: Dictionary, layer_name: String) -> Dictionary:
 
 	return {"arr_mesh": arr_mesh, "layer_name": layer_name}
 
-# Deferred til main thread
 func _add_built_meshes(built: Array[Dictionary], key: String) -> void:
 	_pending_tiles.erase(key)
 
@@ -223,24 +252,65 @@ func _add_built_meshes(built: Array[Dictionary], key: String) -> void:
 		meshes.append(mi)
 
 	_loaded_tiles[key] = meshes
+	var parts := key.split("_")
+	tile_loaded.emit(int(parts[0]), int(parts[1]), int(parts[2]))
+	_unload_redundant_ancestors(int(parts[0]), int(parts[1]), int(parts[2]))
 
 func _unload_tile(key: String) -> void:
 	var meshes: Array = _loaded_tiles.get(key, [])
 	for mi: MeshInstance3D in meshes:
 		mi.queue_free()
 	_loaded_tiles.erase(key)
+	var parts := key.split("_")
+	tile_unloaded.emit(int(parts[0]), int(parts[1]), int(parts[2]))
 
-# stub, vil senere returnere zoom baseret på kamera-højde
+# Frigør lavere-zoom ancestors der er blevet fuldt dækket af højere-zoom tiles
+func _unload_redundant_ancestors(tx: int, ty: int, tz: int) -> void:
+	for ancestor_z in range(tz - 1, -1, -1):
+		var k_des := tz - ancestor_z
+		var ax := tx >> k_des
+		var ay := ty >> k_des
+		var ancestor_key := "%d_%d_%d" % [ax, ay, ancestor_z]
+		if ancestor_key not in _loaded_tiles:
+			continue
+		if _is_fully_covered(ax, ay, ancestor_z):
+			_unload_tile(ancestor_key)
+
+func _is_fully_covered(tx: int, ty: int, tz: int) -> bool:
+	var cells: Dictionary = {}
+	for key: String in _loaded_tiles:
+		var parts := key.split("_")
+		var otz := int(parts[2])
+		if otz <= tz:
+			continue
+		var otx := int(parts[0])
+		var oty := int(parts[1])
+		var k_des := otz - tz
+		if (otx >> k_des) != tx or (oty >> k_des) != ty:
+			continue
+		var k_fine := FINE_ZOOM - otz
+		var size := 1 << k_fine
+		var ox := (otx - (tx << k_des)) << k_fine
+		var oy := (oty - (ty << k_des)) << k_fine
+		for fx in size:
+			for fy in size:
+				cells["%d_%d" % [ox + fx, oy + fy]] = true
+	return cells.size() >= (1 << ((FINE_ZOOM - tz) * 2))
+
 func _desired_zoom() -> int:
-	return DEFAULT_ZOOM
+	var d := Coordinates.camera_distance
+	if d < 350.0: return 14
+	if d < 700.0: return 13
+	if d < 1100.0: return 12
+	return 11
 
 func _setup_outline() -> void:
-	_add_postprocess_quad(SHADER_OUTLINE, 126)
+	_add_postprocessing(SHADER_OUTLINE, 126)
 
 func _setup_distance_fade() -> void:
-	_add_postprocess_quad(SHADER_DISTANCE_FADE, 127)
+	_fade_material = _add_postprocessing(SHADER_DISTANCE_FADE, 127)
 
-func _add_postprocess_quad(shader: Shader, priority: int) -> void:
+func _add_postprocessing(shader: Shader, priority: int) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 	mat.render_priority = priority
@@ -253,3 +323,4 @@ func _add_postprocess_quad(shader: Shader, priority: int) -> void:
 	mi.material_override = mat
 	mi.extra_cull_margin = 16384.0
 	add_child(mi)
+	return mat

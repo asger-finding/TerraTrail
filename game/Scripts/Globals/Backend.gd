@@ -40,6 +40,13 @@ func request_tile(x: int, y: int, z: int, origin_lon: float, origin_lat: float) 
 	http.request(url, auth_headers())
 	return http
 
+func request_waypoints(bbox: String) -> HTTPRequest:
+	var url := "%s/api/waypoints?bbox=%s" % [BASE_URL, bbox]
+	var http := HTTPRequest.new()
+	add_child(http)
+	http.request(url, auth_headers())
+	return http
+
 func request_route(from: String, to: String, origin_lon: float, origin_lat: float) -> HTTPRequest:
 	var url := "%s/api/route?from=%s&to=%s&origin=%s,%s" % [
 		BASE_URL, from, to, str(origin_lon), str(origin_lat)

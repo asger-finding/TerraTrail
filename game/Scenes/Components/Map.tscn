@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://Scripts/Camera.gd" id="2_8axnw"]
 [ext_resource type="Script" uid="uid://d2oijdivn1m01" path="res://Scripts/TileManager.gd" id="3_0m8u7"]
 [ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://Scripts/RoutePath.gd" id="4_q6fnx"]
+[ext_resource type="Script" uid="uid://d0n4y384nrkpa" path="res://Scripts/WaypointManager.gd" id="4_sye5u"]
 [ext_resource type="Script" uid="uid://ls5ro4yl1p1s" path="res://Scripts/Player.gd" id="5_q5v80"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
@@ -51,13 +52,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=898323668]
 own_world_3d = true
 transparent_bg = true
-handle_input_locally = false
+physics_object_picking = true
 size = Vector2i(432, 960)
 render_target_update_mode = 4
 
@@ -74,6 +74,9 @@ light_specular = 2.0
 
 [node name="TileMap" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1816449438]
 script = ExtResource("3_0m8u7")
+
+[node name="WaypointMap" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1449725548]
+script = ExtResource("4_sye5u")
 
 [node name="RoutePath" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=2058587148]
 script = ExtResource("4_q6fnx")
