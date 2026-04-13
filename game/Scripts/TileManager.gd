@@ -12,13 +12,7 @@ const LOAD_RADIUS: int = 2   # Hvor mange tiles der skal loades om spiller
 const UNLOAD_RADIUS: int = 3 # Hvornår tiles skal frigøres igen
 const DEFAULT_ZOOM: int = 14
 
-const LAYER_MATERIALS: Dictionary = {
-	"ground": "MAT_GROUND",
-	"landcover": "MAT_LANDCOVER",
-	"water": "MAT_WATER",
-	"roads": "MAT_ROADS",
-	"buildings": "MAT_BUILDINGS",
-}
+const LAYER_NAMES: PackedStringArray = ["ground", "landcover", "water", "roads", "buildings"]
 
 # Indlæste tiles: key "x_y_z" er en array af MeshInstance3D nodes
 var _loaded_tiles: Dictionary = {}
@@ -126,10 +120,7 @@ func _request_tile(tx: int, ty: int, tz: int, key: String) -> void:
 # msgpack, mesh building kører på worker thread
 # MeshInstance3D nodes tilføes på main thread
 func _decode_and_build(body: PackedByteArray, key: String) -> void:
-	var t0 := Time.get_ticks_msec()
 	var decoded: Dictionary = MessagePack.decode(body)
-	var t1 := Time.get_ticks_msec()
-
 	if decoded.status != null:
 		call_deferred("_pending_tiles_erase", key)
 		return
@@ -143,14 +134,11 @@ func _decode_and_build(body: PackedByteArray, key: String) -> void:
 	var offset := Vector3(origin.get("x", 0.0), 0.0, origin.get("y", 0.0))
 
 	var built: Array[Dictionary] = []
-	for layer_name: String in LAYER_MATERIALS:
+	for layer_name: String in LAYER_NAMES:
 		var mesh_data := _build_layer_mesh(tile, layer_name)
 		if mesh_data.is_empty():
 			continue
 		built.append({"mesh": mesh_data, "layer": layer_name, "offset": offset})
-
-	var t2 := Time.get_ticks_msec()
-	print("[%s] worker total: %dms (decode %dms, mesh %dms), %d layers" % [key, t2 - t0, t1 - t0, t2 - t1, built.size()])
 
 	call_deferred("_add_built_meshes", built, key)
 
@@ -205,7 +193,6 @@ func _build_layer_mesh(tile: Dictionary, layer_name: String) -> Dictionary:
 
 # Deferred til main thread
 func _add_built_meshes(built: Array[Dictionary], key: String) -> void:
-	var t0 := Time.get_ticks_msec()
 	_pending_tiles.erase(key)
 
 	if key in _loaded_tiles:
@@ -236,8 +223,6 @@ func _add_built_meshes(built: Array[Dictionary], key: String) -> void:
 		meshes.append(mi)
 
 	_loaded_tiles[key] = meshes
-	var t1 := Time.get_ticks_msec()
-	print("[%s] add to scene (main): %dms, %d meshes" % [key, t1 - t0, meshes.size()])
 
 func _unload_tile(key: String) -> void:
 	var meshes: Array = _loaded_tiles.get(key, [])
@@ -245,13 +230,9 @@ func _unload_tile(key: String) -> void:
 		mi.queue_free()
 	_loaded_tiles.erase(key)
 
-# stub
+# stub, vil senere returnere zoom baseret på kamera-højde
 func _desired_zoom() -> int:
 	return DEFAULT_ZOOM
-
-# stub
-func _tiles_covered_by(_x: int, _y: int, _z: int, _target_z: int) -> Array[Vector3i]:
-	return []
 
 func _setup_outline() -> void:
 	_add_postprocess_quad(SHADER_OUTLINE, 126)

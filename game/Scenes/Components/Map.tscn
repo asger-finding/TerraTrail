@@ -82,4 +82,5 @@ script = ExtResource("4_q6fnx")
 script = ExtResource("5_q5v80")
 
 [node name="PlayerMesh" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/Player" unique_id=1389168492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
 mesh = SubResource("CapsuleMesh_q5v80")
