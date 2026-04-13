@@ -2,8 +2,9 @@
 
 [ext_resource type="Texture2D" uid="uid://bsa5nj7t7dmu5" path="res://Assets/Environment/HDRI.hdr" id="1_juerm"]
 [ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://Scripts/Camera.gd" id="2_8axnw"]
-[ext_resource type="Script" uid="uid://b341be8g3a68i" path="res://Scripts/TileLoader.gd" id="3_prbvp"]
+[ext_resource type="Script" uid="uid://d2oijdivn1m01" path="res://Scripts/TileManager.gd" id="3_0m8u7"]
 [ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://Scripts/RoutePath.gd" id="4_q6fnx"]
+[ext_resource type="Script" uid="uid://ls5ro4yl1p1s" path="res://Scripts/Player.gd" id="5_q5v80"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
 panorama = ExtResource("1_juerm")
@@ -29,6 +30,10 @@ glow_intensity = 3.91
 glow_strength = 0.7
 glow_bloom = 0.45
 glow_blend_mode = 0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q5v80"]
+radius = 5.0
+height = 15.0
 
 [node name="Map" type="Node3D" unique_id=1673046150]
 
@@ -68,7 +73,13 @@ light_energy = 3.2
 light_specular = 2.0
 
 [node name="TileMap" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1816449438]
-script = ExtResource("3_prbvp")
+script = ExtResource("3_0m8u7")
 
 [node name="RoutePath" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=2058587148]
 script = ExtResource("4_q6fnx")
+
+[node name="Player" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=610614223]
+script = ExtResource("5_q5v80")
+
+[node name="PlayerMesh" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/Player" unique_id=1389168492]
+mesh = SubResource("CapsuleMesh_q5v80")

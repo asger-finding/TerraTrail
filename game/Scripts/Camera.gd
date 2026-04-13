@@ -1,34 +1,17 @@
 extends Camera3D
 
-@export var move_speed := 500.0
-@export var fast_multiplier := 3.0
-@export var mouse_sensitivity := 0.002
-
-var _captured := false
-
-func _ready() -> void:
-	pass
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT:
-			_captured = event.pressed
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _captured else Input.MOUSE_MODE_VISIBLE
-
-	if event is InputEventMouseMotion and _captured:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		rotate_object_local(Vector3.RIGHT, -event.relative.y * mouse_sensitivity)
+@export var follow_distance: float = 200.0
+@export var follow_height: float = 150.0
+@export var follow_speed: float = 3.0
 
 func _process(delta: float) -> void:
-	var speed := move_speed * (fast_multiplier if Input.is_key_pressed(KEY_SHIFT) else 1.0)
-	var dir := Vector3.ZERO
+	if not Coordinates.is_origin_set():
+		return
 
-	if Input.is_key_pressed(KEY_W): dir -= basis.z
-	if Input.is_key_pressed(KEY_S): dir += basis.z
-	if Input.is_key_pressed(KEY_A): dir -= basis.x
-	if Input.is_key_pressed(KEY_D): dir += basis.x
-	if Input.is_key_pressed(KEY_E): dir += Vector3.UP
-	if Input.is_key_pressed(KEY_Q): dir -= Vector3.UP
-
-	if dir.length_squared() > 0:
-		position += dir.normalized() * speed * delta
+	var target_pos: Vector3 = Coordinates.player_world_pos
+	var heading_rad: float = Coordinates.player_heading_rad
+	# Position behind the player: opposite of their forward direction
+	var back := Vector3(sin(heading_rad), 0.0, cos(heading_rad)) * follow_distance
+	var desired: Vector3 = target_pos + back + Vector3(0.0, follow_height, 0.0)
+	global_position = global_position.lerp(desired, follow_speed * delta)
+	look_at(target_pos, Vector3.UP)

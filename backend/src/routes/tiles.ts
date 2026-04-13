@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import { pack } from 'msgpackr';
-import type { BBox, MeshLayer, TileResponse } from '../types/index.js';
+import type { BBox, MeshLayer, TileCoord, TileMeshData, TileResponse } from '../types/index.js';
 import { MBTilesReader } from '../services/mbtiles.js';
 import { parseMvtTile } from '../services/mvt-parser.js';
 import { bboxToTiles, tileToLonLat, lonLatToMeters, tileSizeMeters } from '../services/coordinates.js';
@@ -11,18 +11,50 @@ import { generateFlatMesh } from '../services/mesh/flat.js';
 const EMPTY: MeshLayer = { vertices: [], indices: [], normals: [] };
 
 /**
- * Opret tile-endpoint der returnerer mesh-data for en bounding box af kortet.
- * Kortet er SSR og tegnes i Godot direkte ud fra dataen.
- * @param mbtiles - MBTiles reader til opslag af tile-data
- * @returns Konfigureret router med GET /api/tiles endpoint
+ * Byg mesh-data for en enkelt tile relativt til det givne referencepunkt.
  */
+function buildTileMesh(
+    mbtiles: MBTilesReader, coord: TileCoord, originLon: number, originLat: number
+): TileMeshData | null {
+    const rawTile = mbtiles.getTile(coord.z, coord.x, coord.y);
+    if (!rawTile) return null;
+
+    const tileTopLeft = tileToLonLat(coord.x, coord.y, coord.z);
+    const tileOffset = lonLatToMeters(tileTopLeft.lon, tileTopLeft.lat, originLon, originLat);
+    const tileSizeM = tileSizeMeters(tileTopLeft.lat, coord.z);
+    const { parsed, extent } = parseMvtTile(rawTile);
+
+    const mesh = (features: typeof parsed.buildings, gen: typeof generateBuildingMesh) =>
+        features.length > 0 ? gen(features, extent, tileSizeM) : EMPTY;
+
+    const size = tileSizeM;
+
+    return {
+        x: coord.x,
+        y: coord.y,
+        z: coord.z,
+        origin: { x: tileOffset.x, y: -tileOffset.y },
+        ground: {
+            vertices: [0, 0, 0, size, 0, 0, size, 0, size, 0, 0, size],
+            indices: [0, 1, 2, 0, 2, 3],
+            normals: [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]
+        },
+        buildings: mesh(parsed.buildings, generateBuildingMesh),
+        roads: mesh(parsed.roads, generateRoadMesh),
+        water: mesh(parsed.water, (f, e, t) => generateFlatMesh(f, e, t, 1)),
+        landcover: mesh(parsed.landcover, (f, e, t) => generateFlatMesh(f, e, t, 0.5))
+    };
+}
+
 export function createTileRouter(mbtiles: MBTilesReader): Router {
     const router = new Router({ prefix: '/api' });
 
+    /**
+     * Hent mesh-data for alle tiles i en bounding box.
+     */
     router.get('/tiles', (ctx) => {
         const { bbox: bboxStr, zoom: zoomStr } = ctx.query;
 
-        // Query valdering
         if (typeof bboxStr !== 'string' || typeof zoomStr !== 'string') {
             ctx.status = 400;
             ctx.body = { error: 'Mangler bbox eller zoom parameter' };
@@ -48,40 +80,56 @@ export function createTileRouter(mbtiles: MBTilesReader): Router {
         const originLat = (bbox.minLat + bbox.maxLat) / 2;
 
         const tileCoords = bboxToTiles(bbox, zoom);
-
         const response: TileResponse = {
             origin: { lon: originLon, lat: originLat },
-            tiles: tileCoords.map(coord => {
-                const rawTile = mbtiles.getTile(coord.z, coord.x, coord.y);
-                if (!rawTile) return null;
-
-                const tileTopLeft = tileToLonLat(coord.x, coord.y, coord.z);
-                const tileOffset = lonLatToMeters(tileTopLeft.lon, tileTopLeft.lat, originLon, originLat);
-                const tileSizeM = tileSizeMeters(tileTopLeft.lat, coord.z);
-                const { parsed, extent } = parseMvtTile(rawTile);
-
-                const mesh = (features: typeof parsed.buildings, gen: typeof generateBuildingMesh) =>
-                    features.length > 0 ? gen(features, extent, tileSizeM) : EMPTY;
-
-                const size = tileSizeM;
-
-                return {
-                    x: coord.x,
-                    y: coord.y,
-                    z: coord.z,
-                    origin: { x: tileOffset.x, y: -tileOffset.y },
-                    ground: {
-                        vertices: [0, 0, 0, size, 0, 0, size, 0, size, 0, 0, size],
-                        indices: [0, 1, 2, 0, 2, 3],
-                        normals: [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]
-                    },
-                    buildings: mesh(parsed.buildings, generateBuildingMesh),
-                    roads: mesh(parsed.roads, generateRoadMesh),
-                    water: mesh(parsed.water, (f, e, t) => generateFlatMesh(f, e, t, 1)),
-                    landcover: mesh(parsed.landcover, (f, e, t) => generateFlatMesh(f, e, t, 0.5))
-                };
-            }).filter(t => t !== null)
+            tiles: tileCoords
+                .map(coord => buildTileMesh(mbtiles, coord, originLon, originLat))
+                .filter(t => t !== null)
         };
+
+        const format = ctx.query.format;
+        if (format === 'json') {
+            ctx.type = 'application/json';
+            ctx.body = JSON.stringify(response);
+        } else {
+            ctx.type = 'application/x-msgpack';
+            ctx.body = pack(response);
+        }
+    });
+
+    /**
+     * Hent mesh-data for en enkelt tile med et direkte referencepunkt.
+     */
+    router.get('/tile', (ctx) => {
+        const { x: xStr, y: yStr, z: zStr, originLon: lonStr, originLat: latStr } = ctx.query;
+
+        if (typeof xStr !== 'string' || typeof yStr !== 'string' || typeof zStr !== 'string'
+            || typeof lonStr !== 'string' || typeof latStr !== 'string') {
+            ctx.status = 400;
+            ctx.body = { error: 'Mangler x, y, z, originLon eller originLat parameter' };
+            return;
+        }
+
+        const x = parseInt(xStr, 10);
+        const y = parseInt(yStr, 10);
+        const z = parseInt(zStr, 10);
+        const originLon = parseFloat(lonStr);
+        const originLat = parseFloat(latStr);
+
+        if ([x, y, z, originLon, originLat].some(isNaN) || z < 0 || z > 14) {
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldige parametre' };
+            return;
+        }
+
+        const tile = buildTileMesh(mbtiles, { x, y, z }, originLon, originLat);
+        if (!tile) {
+            ctx.status = 404;
+            ctx.body = { error: 'Tile ikke fundet' };
+            return;
+        }
+
+        const response = { origin: { lon: originLon, lat: originLat }, tile };
 
         const format = ctx.query.format;
         if (format === 'json') {

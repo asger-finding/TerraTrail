@@ -31,6 +31,15 @@ func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
 	http.request(url, auth_headers())
 	return http
 
+func request_tile(x: int, y: int, z: int, origin_lon: float, origin_lat: float) -> HTTPRequest:
+	var url := "%s/api/tile?x=%d&y=%d&z=%d&originLon=%s&originLat=%s" % [
+		BASE_URL, x, y, z, str(origin_lon), str(origin_lat)
+	]
+	var http := HTTPRequest.new()
+	add_child(http)
+	http.request(url, auth_headers())
+	return http
+
 func request_route(from: String, to: String, origin_lon: float, origin_lat: float) -> HTTPRequest:
 	var url := "%s/api/route?from=%s&to=%s&origin=%s,%s" % [
 		BASE_URL, from, to, str(origin_lon), str(origin_lat)
