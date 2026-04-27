@@ -46,6 +46,7 @@ func _spawn_waypoints(coord: Vector3i, waypoints: Array) -> void:
 		var instance := WAYPOINT_SCENE.instantiate()
 		instance.position = Coordinates.lon_lat_to_world(float(wp["longitude"]), float(wp["latitude"]))
 		instance.set_meta("waypoint_id", id)
+		instance.set_meta("waypoint_data", wp)
 		add_child(instance)
 		_by_id[id] = instance
 		instances.append(instance)

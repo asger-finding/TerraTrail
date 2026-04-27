@@ -38,7 +38,9 @@ func _apply_top_down(enabled: bool) -> void:
 
 func _on_click_area_input_event(_camera: Node, event: InputEvent, _pos: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		print(get_meta("waypoint_id", -1))
+		var popup := get_tree().get_first_node_in_group("waypoint_popup")
+		if popup:
+			popup.open(get_meta("waypoint_data", {}))
 
 func _process(delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()

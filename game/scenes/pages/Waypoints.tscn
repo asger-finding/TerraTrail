@@ -8,6 +8,7 @@
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="4_nbrd0"]
 [ext_resource type="Texture2D" uid="uid://crqplpba4cehd" path="res://assets/ui/perspective_grid.png" id="5_ud44u"]
 [ext_resource type="Material" uid="uid://ck68wmlpan5st" path="res://materials/SpinnerShadow.tres" id="6_spnsh"]
+[ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="9_ior6d"]
 
 [sub_resource type="GDScript" id="GDScript_kfrd5"]
 script/source = "extends Control
@@ -320,6 +321,9 @@ text = "Indlæser 0/0 tiles"
 label_settings = SubResource("LabelSettings_eb568")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="WaypointPopup" parent="." unique_id=266227988 instance=ExtResource("9_ior6d")]
+layout_mode = 1
 
 [node name="NoGPSError" type="ColorRect" parent="." unique_id=1122533526]
 unique_name_in_owner = true
