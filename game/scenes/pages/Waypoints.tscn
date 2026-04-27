@@ -1,0 +1,353 @@
+[gd_scene format=3 uid="uid://do6726q06gwx2"]
+
+[ext_resource type="Texture2D" uid="uid://dpn7atx12h050" path="res://assets/ui/Compass.svg" id="1_51nhm"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="2_6q7fh"]
+[ext_resource type="Texture2D" uid="uid://cvy5dbnt7uapf" path="res://assets/ui/Spinner.svg" id="2_spnr"]
+[ext_resource type="Material" uid="uid://cgtkn58p57etv" path="res://materials/DropShadow.tres" id="3_eb568"]
+[ext_resource type="Texture2D" uid="uid://enfr0lbfgs80" path="res://assets/ui/ortho_grid.png" id="4_enqju"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="4_nbrd0"]
+[ext_resource type="Texture2D" uid="uid://crqplpba4cehd" path="res://assets/ui/perspective_grid.png" id="5_ud44u"]
+[ext_resource type="Material" uid="uid://ck68wmlpan5st" path="res://materials/SpinnerShadow.tres" id="6_spnsh"]
+
+[sub_resource type="GDScript" id="GDScript_kfrd5"]
+script/source = "extends Control
+
+const SPINNER_SPEED: float = 6.0
+
+@onready var compass: TextureButton = %CompassButton
+@onready var loading_overlay: Control = %LoadingOverlay
+@onready var spinner: TextureRect = %Spinner
+@onready var loading_label: Label = %LoadingLabel
+@onready var ortho_icon: TextureRect = %OrthoIcon
+@onready var perspective_icon: TextureRect = %PerspectiveIcon
+@onready var back_button: Button = %BackToPlayerButton
+@onready var no_gps_error: ColorRect = %NoGPSError
+
+var _tile_manager: Node
+
+func _ready() -> void:
+	await get_tree().process_frame
+	_set_navbar_visible(false)
+	_tile_manager = get_tree().get_first_node_in_group(\"tile_manager\")
+	if _tile_manager:
+		_tile_manager.tile_loaded.connect(_on_tile_loaded)
+	else:
+		_hide_loading()
+
+func _on_tile_loaded(_coord: Vector3i) -> void:
+	_update_loading_label()
+	if _tile_manager.is_idle():
+		_hide_loading()
+		_tile_manager.tile_loaded.disconnect(_on_tile_loaded)
+
+func _hide_loading() -> void:
+	loading_overlay.visible = false
+	_set_navbar_visible(true)
+
+func _set_navbar_visible(v: bool) -> void:
+	var navbar := get_tree().get_first_node_in_group(\"navbar\")
+	if navbar:
+		navbar.visible = v
+
+func _update_loading_label() -> void:
+	if not Coordinates.is_origin_set():
+		var player := get_tree().get_first_node_in_group(\"player\")
+		if player != null:
+			loading_label.text = \"Henter GPS lokation (%d s/%d s)\" % [int(player.gps_wait_elapsed), int(player.GPS_TIMEOUT)]
+		return
+	if _tile_manager == null:
+		return
+	var loaded: int = _tile_manager.loaded_count()
+	var total: int = loaded + _tile_manager.pending_count()
+	loading_label.text = \"Indlæser %d/%d tiles\" % [loaded, total]
+
+func _process(delta: float) -> void:
+	compass.pivot_offset = compass.size / 2.0
+	compass.rotation = Coordinates.view_yaw
+	var cam := _find_camera()
+	if cam:
+		var following: bool = cam.mode == cam.Mode.FOLLOW
+		var normal_color: Color = Color.DODGER_BLUE if following else Color(\"#ababab\")
+		var pressed_color := Color(\"#737373\")
+		back_button.add_theme_color_override(\"font_color\", normal_color)
+		back_button.add_theme_color_override(\"font_hover_color\", normal_color)
+		back_button.add_theme_color_override(\"font_focus_color\", normal_color)
+		back_button.add_theme_color_override(\"font_pressed_color\", pressed_color)
+		back_button.add_theme_color_override(\"font_hover_pressed_color\", pressed_color)
+	var player := get_tree().get_first_node_in_group(\"player\")
+	no_gps_error.visible = player != null and player.gps_fix_missing and not player.gps_wait_active
+	if loading_overlay.visible:
+		_update_loading_label()
+		var mat := spinner.material as ShaderMaterial
+		var a: float = float(mat.get_shader_parameter(\"angle\") if mat.get_shader_parameter(\"angle\") != null else 0.0)
+		mat.set_shader_parameter(\"angle\", a + delta * SPINNER_SPEED)
+
+func _find_camera() -> Camera3D:
+	return get_tree().get_first_node_in_group(\"main_camera\")
+
+func _on_back_button_pressed() -> void:
+	var cam := _find_camera()
+	if cam:
+		cam.reset_to_player()
+
+func _on_top_down_button_pressed() -> void:
+	var cam := _find_camera()
+	if cam:
+		cam.toggle_top_down()
+		_update_top_down_icon(cam)
+
+func _update_top_down_icon(cam: Camera3D) -> void:
+	ortho_icon.visible = cam.top_down
+	perspective_icon.visible = not cam.top_down
+
+func _on_compass_button_pressed() -> void:
+	var cam := _find_camera()
+	if cam:
+		cam.reset_north()
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enqju"]
+bg_color = Color(0.78352344, 0.7835234, 0.7835234, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.42365056, 0.42365068, 0.42365035, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+corner_detail = 12
+expand_margin_top = 2.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eb568"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+corner_detail = 12
+expand_margin_top = 2.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="Theme" id="Theme_enqju"]
+Button/colors/font_color = Color(0.67, 0.67, 0.67, 1)
+Button/colors/font_disabled_color = Color(0, 0, 0, 1)
+Button/colors/font_focus_color = Color(0, 0.53161174, 0.97355336, 1)
+Button/colors/font_hover_color = Color(0.45452422, 0.45452428, 0.45452422, 1)
+Button/colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(0, 0.53333336, 0.972549, 1)
+Button/colors/icon_disabled_color = Color(0, 0, 0, 1)
+Button/colors/icon_focus_color = Color(0, 0, 0, 1)
+Button/colors/icon_hover_color = Color(0, 0, 0, 1)
+Button/colors/icon_hover_pressed_color = Color(0, 0, 0, 1)
+Button/colors/icon_normal_color = Color(0, 0, 0, 1)
+Button/colors/icon_pressed_color = Color(0, 0, 0, 1)
+Button/constants/align_to_largest_stylebox = 0
+Button/constants/h_separation = 0
+Button/constants/icon_max_width = 0
+Button/constants/outline_size = 0
+Button/font_sizes/font_size = 48
+Button/fonts/font = ExtResource("4_nbrd0")
+Button/styles/disabled = SubResource("StyleBoxFlat_enqju")
+Button/styles/focus = SubResource("StyleBoxFlat_eb568")
+Button/styles/hover = SubResource("StyleBoxFlat_eb568")
+Button/styles/normal = SubResource("StyleBoxFlat_eb568")
+Button/styles/pressed = SubResource("StyleBoxFlat_eb568")
+
+[sub_resource type="LabelSettings" id="LabelSettings_eb568"]
+font = ExtResource("4_nbrd0")
+font_size = 24
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.20784314)
+shadow_offset = Vector2(2, 2)
+
+[sub_resource type="SystemFont" id="SystemFont_ptoxt"]
+font_names = PackedStringArray("Monospace")
+subpixel_positioning = 0
+
+[sub_resource type="LabelSettings" id="LabelSettings_ior6d"]
+font = SubResource("SystemFont_ptoxt")
+font_size = 20
+
+[node name="Waypoints" type="Control" unique_id=95938200]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = SubResource("GDScript_kfrd5")
+
+[node name="HUDBottomRight" type="VBoxContainer" parent="." unique_id=1815934075]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -88.0
+offset_top = -224.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="CompassButton" type="TextureButton" parent="HUDBottomRight" unique_id=1369260191]
+unique_name_in_owner = true
+material = ExtResource("3_eb568")
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture_normal = ExtResource("1_51nhm")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="HUDBottomRight" unique_id=314134435]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="TopDownButton" type="Button" parent="HUDBottomRight" unique_id=1824535756]
+custom_minimum_size = Vector2(80, 76)
+layout_mode = 2
+theme = SubResource("Theme_enqju")
+
+[node name="OrthoIcon" type="TextureRect" parent="HUDBottomRight/TopDownButton" unique_id=2127997282]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_enqju")
+expand_mode = 1
+
+[node name="PerspectiveIcon" type="TextureRect" parent="HUDBottomRight/TopDownButton" unique_id=1655873392]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_ud44u")
+expand_mode = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="HUDBottomRight" unique_id=91883004]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="BackToPlayerButton" type="Button" parent="HUDBottomRight" unique_id=1109496719]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 76)
+layout_mode = 2
+theme = SubResource("Theme_enqju")
+text = "⊕"
+icon_alignment = 1
+
+[node name="MarginContainer3" type="MarginContainer" parent="HUDBottomRight" unique_id=574023803]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+
+[node name="LoadingOverlay" type="Control" parent="." unique_id=7412301]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="LoadingOverlay" unique_id=591415040]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_6q7fh")
+expand_mode = 1
+
+[node name="Spinner" type="TextureRect" parent="LoadingOverlay" unique_id=7412303]
+unique_name_in_owner = true
+material = ExtResource("6_spnsh")
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -48.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_spnr")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LoadingLabel" type="Label" parent="LoadingOverlay" unique_id=7412304]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 170.0
+offset_right = 150.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Indlæser 0/0 tiles"
+label_settings = SubResource("LabelSettings_eb568")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NoGPSError" type="ColorRect" parent="." unique_id=1122533526]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -118.125
+offset_top = -291.75
+offset_right = 118.125
+offset_bottom = -238.25
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0, 0, 1)
+
+[node name="NoGPSErrorLabel" type="Label" parent="NoGPSError" unique_id=343144023]
+layout_mode = 0
+offset_left = 4.0
+offset_right = 207.0
+offset_bottom = 23.0
+text = "MISLYKKEDES AT LAVE
+GPS-FORBINDELSE"
+label_settings = SubResource("LabelSettings_ior6d")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="HUDBottomRight/CompassButton" to="." method="_on_compass_button_pressed"]
+[connection signal="pressed" from="HUDBottomRight/TopDownButton" to="." method="_on_top_down_button_pressed"]
+[connection signal="pressed" from="HUDBottomRight/BackToPlayerButton" to="." method="_on_back_button_pressed"]

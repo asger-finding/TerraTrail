@@ -1,0 +1,100 @@
+[gd_scene format=3 uid="uid://kdkee8ftds16"]
+
+[ext_resource type="Texture2D" uid="uid://bsa5nj7t7dmu5" path="res://assets/environment/HDRI.hdr" id="1_juerm"]
+[ext_resource type="Script" uid="uid://baxils2ml0u6m" path="res://scripts/Camera.gd" id="2_8axnw"]
+[ext_resource type="Script" uid="uid://d2oijdivn1m01" path="res://scripts/TileManager.gd" id="3_0m8u7"]
+[ext_resource type="Script" uid="uid://cbsoqahtne2sa" path="res://scripts/FollowPlayerXZ.gd" id="3_7qr2g"]
+[ext_resource type="Script" uid="uid://cn7spox0trxj8" path="res://scripts/SyncCamera.gd" id="3_nwgdv"]
+[ext_resource type="Script" uid="uid://ds0r5jck6uwt4" path="res://scripts/RoutePath.gd" id="4_q6fnx"]
+[ext_resource type="Script" uid="uid://d0n4y384nrkpa" path="res://scripts/WaypointManager.gd" id="4_sye5u"]
+[ext_resource type="Script" uid="uid://ls5ro4yl1p1s" path="res://scripts/Player.gd" id="5_q5v80"]
+[ext_resource type="Script" uid="uid://bag0v5muy5gc6" path="res://scripts/MapInput.gd" id="6_mapin"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
+panorama = ExtResource("1_juerm")
+energy_multiplier = 1.2
+
+[sub_resource type="Sky" id="Sky_ia1lp"]
+sky_material = SubResource("PanoramaSkyMaterial_sasra")
+
+[sub_resource type="Environment" id="Environment_ia1lp"]
+background_mode = 2
+background_energy_multiplier = 0.8
+sky = SubResource("Sky_ia1lp")
+fog_depth_curve = 4.0
+fog_depth_end = 2000.0
+
+[sub_resource type="Environment" id="Environment_sub"]
+sky = SubResource("Sky_ia1lp")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.5
+reflected_light_source = 2
+glow_normalized = true
+glow_intensity = 3.91
+glow_strength = 0.7
+glow_bloom = 0.45
+glow_blend_mode = 0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q5v80"]
+radius = 5.0
+height = 15.0
+
+[node name="Map" type="Node3D" unique_id=1673046150]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1936734181]
+environment = SubResource("Environment_ia1lp")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1706513994]
+transform = Transform3D(1, 0, 0, 0, 0.57357645, 0.81915206, 0, -0.81915206, 0.57357645, 0, 300, 200)
+current = true
+script = ExtResource("2_8axnw")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1492631642 node_paths=PackedStringArray("main_camera")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+script = ExtResource("6_mapin")
+main_camera = NodePath("../Camera3D")
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=898323668]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(432, 960)
+render_target_update_mode = 4
+
+[node name="SubWorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport" unique_id=258320311]
+environment = SubResource("Environment_sub")
+
+[node name="SubCamera" type="Camera3D" parent="SubViewportContainer/SubViewport" unique_id=540527891 node_paths=PackedStringArray("target")]
+current = true
+script = ExtResource("3_nwgdv")
+target = NodePath("../../../Camera3D")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport" unique_id=521961862]
+transform = Transform3D(0.8660254, 0.3535534, -0.3535534, 0, 0.7071068, 0.7071068, 0.5, -0.61237246, 0.61237246, 0, 114.349625, 0)
+light_energy = 3.2
+light_specular = 2.0
+script = ExtResource("3_7qr2g")
+
+[node name="TileMap" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1816449438]
+script = ExtResource("3_0m8u7")
+
+[node name="WaypointMap" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1449725548 node_paths=PackedStringArray("tile_manager")]
+script = ExtResource("4_sye5u")
+tile_manager = NodePath("../TileMap")
+
+[node name="RoutePath" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=2058587148]
+script = ExtResource("4_q6fnx")
+
+[node name="Player" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=610614223]
+script = ExtResource("5_q5v80")
+compass_offset_deg = -160.0
+
+[node name="PlayerMesh" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/Player" unique_id=1389168492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+mesh = SubResource("CapsuleMesh_q5v80")

@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-PlayerState="*res://Scripts/Globals/PlayerState.gd"
-Backend="*res://Scripts/Globals/Backend.gd"
+PlayerState="*res://scripts/globals/PlayerState.gd"
+Backend="*res://scripts/globals/Backend.gd"
 Router="*uid://cyvixmvk2ujju"
 Coordinates="*uid://dw61fm1osfmoi"
 
@@ -26,7 +26,20 @@ Coordinates="*uid://dw61fm1osfmoi"
 
 window/size/viewport_width=432
 window/size/viewport_height=960
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/PraxisMapperGPSPlugin/plugin.cfg")
+
+[input_devices]
+
+sensors/enable_gravity=true
+sensors/enable_gyroscope=true
+sensors/enable_magnetometer=true
+pointing/emulate_touch_from_mouse=true
 
 [physics]
 
@@ -37,4 +50,4 @@ window/handheld/orientation=1
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
-environment/defaults/default_clear_color=Color(0.8156863, 0.9019608, 0.9411765, 1)
+environment/defaults/default_clear_color=Color(0.2550203, 9.024516e-07, 0.15914702, 1)

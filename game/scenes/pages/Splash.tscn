@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://dsteqwy1mg2ic"]
+
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="1_rpu0b"]
+[ext_resource type="Texture2D" uid="uid://cvirbvt8lmi8o" path="res://assets/ui/logo_splash.webp" id="2_40ojj"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="3_ole6g"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="6_pressb"]
+
+[sub_resource type="GDScript" id="GDScript_uw6fr"]
+script/source = "extends Control
+
+func _on_login_button_button_up() -> void:
+	Router.push(\"login\")
+
+func _on_signup_button_button_up() -> void:
+	Router.push(\"signup\")
+"
+
+[node name="Splash" type="Control" unique_id=601142130]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_uw6fr")
+
+[node name="Background" type="TextureRect" parent="." unique_id=149108424]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_rpu0b")
+expand_mode = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1036520372]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=558434690]
+custom_minimum_size = Vector2(345.6, 0)
+layout_mode = 2
+
+[node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer" unique_id=181601564]
+custom_minimum_size = Vector2(280, 280)
+layout_mode = 2
+texture = ExtResource("2_40ojj")
+expand_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/VBoxContainer" unique_id=445306562]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="Control" type="Control" parent="CenterContainer/VBoxContainer" unique_id=1406651085]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="LoginButton" type="Button" parent="CenterContainer/VBoxContainer/Control" unique_id=228294078]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 345.0
+offset_bottom = 39.0
+theme = ExtResource("3_ole6g")
+text = "Login"
+script = ExtResource("6_pressb")
+
+[node name="MarginContainer2" type="MarginContainer" parent="CenterContainer/VBoxContainer" unique_id=750993627]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="CenterContainer/VBoxContainer" unique_id=426619812]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="SignupButton" type="Button" parent="CenterContainer/VBoxContainer/Control2" unique_id=2142611594]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 345.0
+offset_bottom = 39.0
+theme = ExtResource("3_ole6g")
+text = "Opret konto"
+script = ExtResource("6_pressb")
+
+[connection signal="button_up" from="CenterContainer/VBoxContainer/Control/LoginButton" to="." method="_on_login_button_button_up"]
+[connection signal="button_up" from="CenterContainer/VBoxContainer/Control2/SignupButton" to="." method="_on_signup_button_button_up"]

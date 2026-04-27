@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://deoox4liuuec3"]
+
+[ext_resource type="Texture2D" uid="uid://dd3424cjvwoxx" path="res://assets/ui/waypoints_active.png" id="1_8e2k8"]
+
+[sub_resource type="GDScript" id="GDScript_navbar"]
+script/source = "extends Control
+
+const ICONS := {
+	\"profile\": preload(\"res://assets/ui/profile_active.png\"),
+	\"waypoints\": preload(\"res://assets/ui/waypoints_active.png\"),
+	\"achievements\": preload(\"res://assets/ui/achievements_active.png\"),
+}
+
+@onready var texture: TextureRect = %NavTexture
+
+func _ready() -> void:
+	add_to_group(\"navbar\")
+	Router.page_changed.connect(_on_page_changed)
+	_on_page_changed(Router.current())
+
+func _on_page_changed(page_name: String) -> void:
+	if page_name in ICONS:
+		texture.texture = ICONS[page_name]
+
+func _on_profile_pressed() -> void:
+	Router.goto(\"profile\")
+
+func _on_waypoints_pressed() -> void:
+	Router.goto(\"waypoints\")
+
+func _on_achievements_pressed() -> void:
+	Router.goto(\"achievements\")
+"
+
+[node name="Navbar" type="Control" unique_id=835694898]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+script = SubResource("GDScript_navbar")
+
+[node name="NavTexture" type="TextureRect" parent="." unique_id=1220523063]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("1_8e2k8")
+expand_mode = 1
+
+[node name="HitAreas" type="HBoxContainer" parent="." unique_id=1124826589]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ProfileHit" type="Button" parent="HitAreas" unique_id=1306164669]
+layout_mode = 2
+size_flags_horizontal = 3
+flat = true
+
+[node name="WaypointsHit" type="Button" parent="HitAreas" unique_id=579556376]
+layout_mode = 2
+size_flags_horizontal = 3
+flat = true
+
+[node name="AchievementsHit" type="Button" parent="HitAreas" unique_id=179106480]
+layout_mode = 2
+size_flags_horizontal = 3
+flat = true
+
+[connection signal="pressed" from="HitAreas/ProfileHit" to="." method="_on_profile_pressed"]
+[connection signal="pressed" from="HitAreas/WaypointsHit" to="." method="_on_waypoints_pressed"]
+[connection signal="pressed" from="HitAreas/AchievementsHit" to="." method="_on_achievements_pressed"]

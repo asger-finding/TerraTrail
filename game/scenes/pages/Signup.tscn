@@ -1,0 +1,175 @@
+[gd_scene format=3 uid="uid://cmmn6u7hi1vyg"]
+
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="1_s2ecu"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="2_font"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_fvp2u"]
+[ext_resource type="Texture2D" uid="uid://wi5uu0msrk8h" path="res://assets/ui/checkbox.png" id="3_chk"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="5_bywqv"]
+
+[sub_resource type="GDScript" id="GDScript_rrmtm"]
+script/source = "extends Control
+
+@onready var username_input: LineEdit = %UsernameInput
+@onready var password_input: LineEdit = %PasswordInput
+@onready var submit_button: Button = %SubmitSignupButton
+@onready var terms_checkbox: TextureRect = %TermsCheckbox
+
+var _terms_accepted: bool = false
+
+func _on_submit_signup_button_button_up() -> void:
+	var username := username_input.text.strip_edges()
+	var password := password_input.text
+
+	if username.is_empty() or password.is_empty():
+		push_warning(\"Username og password er påkrævet\")
+		return
+
+	if password.length() < 8:
+		push_warning(\"Password skal være mindst 8 tegn\")
+		return
+
+	if not _terms_accepted:
+		push_warning(\"Du skal acceptere vilkårene\")
+		return
+
+	submit_button.disabled = true
+	var result: Dictionary = await Backend.signup(username, password)
+	submit_button.disabled = false
+
+	if not result[\"ok\"]:
+		push_warning(\"Signup fejl: %s\" % result[\"error\"])
+		return
+
+	PlayerState.set_from_response(result[\"data\"])
+	Router.goto(\"waypoints\")
+
+func _on_terms_row_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_terms_accepted = not _terms_accepted
+		terms_checkbox.texture = preload(\"res://assets/ui/checkbox_active.png\") if _terms_accepted else preload(\"res://assets/ui/checkbox.png\")
+
+func _on_back_button_button_up() -> void:
+	Router.back()
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_bywqv"]
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.1882353)
+
+[node name="Signup" type="Control" unique_id=670753293]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_rrmtm")
+
+[node name="Background" type="TextureRect" parent="." unique_id=13397113]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_s2ecu")
+expand_mode = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1919709376]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1205105535]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="UsernameInput" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=1066394726]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_fvp2u")
+placeholder_text = "Brugernavn"
+max_length = 23
+
+[node name="MarginContainer3" type="MarginContainer" parent="CenterContainer/VBoxContainer" unique_id=401687753]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="PasswordInput" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=762223598]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_fvp2u")
+placeholder_text = "Adgangskode"
+secret = true
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/VBoxContainer" unique_id=229657890]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="TermsRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1916288800]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TermsCheckbox" type="TextureRect" parent="CenterContainer/VBoxContainer/TermsRow" unique_id=8830011]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("3_chk")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TermsLabel" type="Label" parent="CenterContainer/VBoxContainer/TermsRow" unique_id=2026091749]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.29411766)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "Jeg accepterer vilkår
+og betingelser"
+label_settings = SubResource("LabelSettings_bywqv")
+vertical_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="CenterContainer/VBoxContainer" unique_id=547738863]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Control" type="Control" parent="CenterContainer/VBoxContainer" unique_id=2091282396]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="SubmitSignupButton" type="Button" parent="CenterContainer/VBoxContainer/Control" unique_id=1327985765]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 4.0
+offset_right = 250.0
+offset_bottom = 39.0
+theme = ExtResource("2_fvp2u")
+text = "Opret konto"
+script = ExtResource("5_bywqv")
+
+[node name="Control" type="Control" parent="." unique_id=965919369]
+anchors_preset = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 52.0
+offset_bottom = 52.0
+
+[node name="BackButton" type="Button" parent="Control" unique_id=2060385316]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 4.0
+offset_top = 8.0
+offset_right = 104.0
+offset_bottom = 28.0
+theme = ExtResource("2_fvp2u")
+theme_override_font_sizes/font_size = 14
+text = "← Tilbage"
+script = ExtResource("5_bywqv")
+press_offset = 4.0
+
+[connection signal="gui_input" from="CenterContainer/VBoxContainer/TermsRow" to="." method="_on_terms_row_gui_input"]
+[connection signal="button_up" from="CenterContainer/VBoxContainer/Control/SubmitSignupButton" to="." method="_on_submit_signup_button_button_up"]
+[connection signal="button_up" from="Control/BackButton" to="." method="_on_back_button_button_up"]

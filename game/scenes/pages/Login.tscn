@@ -1,0 +1,129 @@
+[gd_scene format=3 uid="uid://bd6sa0uwarw6u"]
+
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="1_ff2ty"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_vsicg"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="3_qr8ks"]
+
+[sub_resource type="GDScript" id="GDScript_1jerj"]
+script/source = "extends Control
+
+@onready var username_input: LineEdit = %UsernameInput
+@onready var password_input: LineEdit = %PasswordInput
+@onready var submit_button: Button = %SubmitLoginButton
+
+func _on_submit_login_button_button_up() -> void:
+	var username := username_input.text.strip_edges()
+	var password := password_input.text
+
+	if username.is_empty() or password.is_empty():
+		push_warning(\"Username og password er påkrævet\")
+		return
+
+	submit_button.disabled = true
+	var result: Dictionary = await Backend.login(username, password)
+	submit_button.disabled = false
+
+	if not result[\"ok\"]:
+		push_warning(\"Login fejl: %s\" % result[\"error\"])
+		return
+
+	PlayerState.set_from_response(result[\"data\"])
+	Router.goto(\"waypoints\")
+
+func _on_back_button_button_up() -> void:
+	Router.back()
+"
+
+[node name="Login" type="Control" unique_id=1311445200]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_1jerj")
+
+[node name="Background" type="TextureRect" parent="." unique_id=986797640]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ff2ty")
+expand_mode = 1
+
+[node name="CenterContainer2" type="CenterContainer" parent="." unique_id=298102879]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer2" unique_id=1662089087]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="UsernameInput" type="LineEdit" parent="CenterContainer2/VBoxContainer" unique_id=95290677]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_vsicg")
+placeholder_text = "Brugernavn"
+max_length = 23
+
+[node name="MarginContainer3" type="MarginContainer" parent="CenterContainer2/VBoxContainer" unique_id=567835191]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="PasswordInput" type="LineEdit" parent="CenterContainer2/VBoxContainer" unique_id=1434574742]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_vsicg")
+placeholder_text = "Adgangskode"
+secret = true
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer2/VBoxContainer" unique_id=1641986039]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="CenterContainer2/VBoxContainer" unique_id=834008039]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Control" type="Control" parent="CenterContainer2/VBoxContainer" unique_id=622383307]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="SubmitLoginButton" type="Button" parent="CenterContainer2/VBoxContainer/Control" unique_id=17338741]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 4.0
+offset_right = 250.0
+offset_bottom = 39.0
+theme = ExtResource("2_vsicg")
+text = "Login"
+script = ExtResource("3_qr8ks")
+
+[node name="Control" type="Control" parent="." unique_id=1723237826]
+anchors_preset = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 52.0
+offset_bottom = 52.0
+
+[node name="BackButton" type="Button" parent="Control" unique_id=709234863]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 4.0
+offset_top = 8.0
+offset_right = 104.0
+offset_bottom = 28.0
+theme = ExtResource("2_vsicg")
+theme_override_font_sizes/font_size = 14
+text = "← Tilbage"
+script = ExtResource("3_qr8ks")
+press_offset = 4.0
+
+[connection signal="button_up" from="CenterContainer2/VBoxContainer/Control/SubmitLoginButton" to="." method="_on_submit_login_button_button_up"]
+[connection signal="button_up" from="Control/BackButton" to="." method="_on_back_button_button_up"]

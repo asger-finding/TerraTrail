@@ -1,0 +1,46 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cgtkn58p57etv"]
+
+[sub_resource type="Shader" id="Shader_spinds"]
+code = "shader_type canvas_item;
+
+uniform vec2 shadow_offset = vec2(0.0, 10.0);
+uniform float shadow_blur = 6.0;
+uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.0, 0.2);
+uniform float angle = 0.0;
+
+vec2 rotate_uv(vec2 uv, float a) {
+	vec2 c = uv - 0.5;
+	float s = sin(a);
+	float co = cos(a);
+	return vec2(c.x * co - c.y * s, c.x * s + c.y * co) + 0.5;
+}
+
+void fragment() {
+	vec2 px = TEXTURE_PIXEL_SIZE;
+	vec2 off = shadow_offset * px;
+	float s = 0.0;
+	float total = 0.0;
+	for (int x = -3; x <= 3; x++) {
+		for (int y = -3; y <= 3; y++) {
+			vec2 d = vec2(float(x), float(y)) * px * (shadow_blur / 3.0);
+			float w = exp(-float(x * x + y * y) / 4.5);
+			s += texture(TEXTURE, rotate_uv(UV - off + d, angle)).a * w;
+			total += w;
+		}
+	}
+	s /= total;
+	vec4 src = texture(TEXTURE, rotate_uv(UV, angle));
+	vec4 shadow = vec4(shadow_color.rgb, shadow_color.a * s);
+	vec4 outc = shadow;
+	outc.rgb = mix(shadow.rgb, src.rgb, src.a);
+	outc.a = shadow.a + src.a * (1.0 - shadow.a);
+	COLOR = outc;
+}
+"
+
+[resource]
+shader = SubResource("Shader_spinds")
+shader_parameter/shadow_offset = Vector2(0, 12)
+shader_parameter/shadow_blur = 14.0
+shader_parameter/shadow_color = Color(0, 0, 0, 0.2)
+shader_parameter/angle = 0.0
