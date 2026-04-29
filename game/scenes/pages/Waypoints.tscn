@@ -22,6 +22,7 @@ const SPINNER_SPEED: float = 6.0
 @onready var ortho_icon: TextureRect = %OrthoIcon
 @onready var perspective_icon: TextureRect = %PerspectiveIcon
 @onready var back_button: Button = %BackToPlayerButton
+@onready var stop_route_button: Button = %StopRouteButton
 @onready var no_gps_error: ColorRect = %NoGPSError
 
 var _tile_manager: Node
@@ -77,6 +78,8 @@ func _process(delta: float) -> void:
 		back_button.add_theme_color_override(\"font_hover_pressed_color\", pressed_color)
 	var player := get_tree().get_first_node_in_group(\"player\")
 	no_gps_error.visible = player != null and player.gps_fix_missing and not player.gps_wait_active
+	var route_path := get_tree().get_first_node_in_group(\"route_path\")
+	stop_route_button.visible = route_path != null and route_path.is_active()
 	if loading_overlay.visible:
 		_update_loading_label()
 		var mat := spinner.material as ShaderMaterial
@@ -105,6 +108,11 @@ func _on_compass_button_pressed() -> void:
 	var cam := _find_camera()
 	if cam:
 		cam.reset_north()
+
+func _on_stop_route_pressed() -> void:
+	var route_path := get_tree().get_first_node_in_group(\"route_path\")
+	if route_path:
+		route_path.clear_route()
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enqju"]
@@ -264,6 +272,23 @@ icon_alignment = 1
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 
+[node name="StopRouteButton" type="Button" parent="." unique_id=2034812711]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(80, 76)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -212.0
+offset_right = 96.0
+offset_bottom = -136.0
+grow_vertical = 0
+theme = SubResource("Theme_enqju")
+text = "X"
+icon_alignment = 1
+
 [node name="LoadingOverlay" type="Control" parent="." unique_id=7412301]
 unique_name_in_owner = true
 layout_mode = 1
@@ -355,3 +380,4 @@ vertical_alignment = 1
 [connection signal="pressed" from="HUDBottomRight/CompassButton" to="." method="_on_compass_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/TopDownButton" to="." method="_on_top_down_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/BackToPlayerButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="StopRouteButton" to="." method="_on_stop_route_pressed"]

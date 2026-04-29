@@ -1,7 +1,5 @@
 extends Control
 
-signal start_pressed(waypoint_id: int)
-
 const STAR_FILLED := preload("res://assets/ui/star_filled.svg")
 const STAR_EMPTY := preload("res://assets/ui/star.svg")
 
@@ -12,6 +10,8 @@ const STAR_EMPTY := preload("res://assets/ui/star.svg")
 @onready var start_button: Button = %StartButton
 
 var _waypoint_id: int = -1
+var _waypoint_lon: float = 0.0
+var _waypoint_lat: float = 0.0
 var _stars: Array[TextureRect] = []
 
 func _ready() -> void:
@@ -28,6 +28,8 @@ func _ready() -> void:
 
 func open(data: Dictionary) -> void:
 	_waypoint_id = int(data.get("id", -1))
+	_waypoint_lon = float(data.get("longitude", 0.0))
+	_waypoint_lat = float(data.get("latitude", 0.0))
 	title_label.text = String(data.get("title", ""))
 	description_label.text = String(data.get("description", ""))
 	completed_badge.visible = bool(data.get("isCompleted", false))
@@ -42,5 +44,7 @@ func _update_stars(difficulty: int) -> void:
 		_stars[i].texture = STAR_FILLED if i < difficulty else STAR_EMPTY
 
 func _on_start_pressed() -> void:
-	start_pressed.emit(_waypoint_id)
+	var route_path := get_tree().get_first_node_in_group("route_path")
+	if route_path:
+		route_path.request_route(_waypoint_lon, _waypoint_lat, _waypoint_id)
 	close()

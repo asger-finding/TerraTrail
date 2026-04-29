@@ -1,19 +1,32 @@
 extends Node3D
 
-const ROUTE_FROM := "12.495449,55.750314"
-const ROUTE_TO := "12.526932,55.778280"
 const ROUTE_WIDTH := 3.0
 const ROUTE_Y_OFFSET := 0.5
 
 const MAT_PATH := preload("res://materials/Path.tres")
 const MAT_PATH_GLOW := preload("res://materials/PathGlow.tres")
 
-func request_route(origin_lon: float, origin_lat: float) -> void:
-	var http := Backend.request_route(ROUTE_FROM, ROUTE_TO, origin_lon, origin_lat)
-	http.request_completed.connect(_on_route_completed)
-	print("Requesting route ...")
+var active_waypoint_id: int = -1
 
-func _on_route_completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func _ready() -> void:
+	add_to_group("route_path")
+
+func is_active() -> bool:
+	return active_waypoint_id != -1
+
+func request_route(to_lon: float, to_lat: float, waypoint_id: int) -> void:
+	if not Coordinates.is_origin_set():
+		return
+	var from := "%s,%s" % [str(Coordinates.player_lon), str(Coordinates.player_lat)]
+	var to := "%s,%s" % [str(to_lon), str(to_lat)]
+	var http := Backend.request_route(from, to, Coordinates.world_origin_lon, Coordinates.world_origin_lat)
+	http.request_completed.connect(_on_route_completed.bind(waypoint_id))
+
+func clear_route() -> void:
+	_free_route_meshes()
+	active_waypoint_id = -1
+
+func _on_route_completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, waypoint_id: int) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 		push_error("Route request failed: result=%d code=%d" % [result, code])
 		return
@@ -29,13 +42,20 @@ func _on_route_completed(result: int, code: int, _headers: PackedStringArray, bo
 		push_warning("Route has no points")
 		return
 
-	print("Route: %d points, %.0fm" % [points_flat.size() / 3, parsed.get("distance", 0.0)])
 	_build_route_mesh(points_flat)
+	active_waypoint_id = waypoint_id
+
+func _free_route_meshes() -> void:
+	for child in get_children():
+		if child.name == "route" or child.name == "route_glow":
+			child.queue_free()
 
 func _build_route_mesh(points_flat: Array) -> void:
 	var point_count := points_flat.size() / 3
 	if point_count < 2:
 		return
+
+	_free_route_meshes()
 
 	var points := PackedVector3Array()
 	points.resize(point_count)
