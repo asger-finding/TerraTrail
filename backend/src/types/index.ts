@@ -91,6 +91,13 @@ export interface MeResponse {
     exp: number;
 }
 
+/** En række på leaderboardet leveret af `GET /api/leaderboard`. */
+export interface LeaderboardEntry {
+    rank: number;
+    username: string;
+    exp: number;
+}
+
 /** Waypoints som de står i SQLite. */
 export interface WaypointRow {
     id: number;

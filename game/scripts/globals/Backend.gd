@@ -61,6 +61,9 @@ func request_achievements() -> HTTPRequest:
 func request_me() -> HTTPRequest:
 	return _authed_get("/api/me")
 
+func request_leaderboard() -> HTTPRequest:
+	return _authed_get("/api/leaderboard")
+
 func request_waypoint_image(waypoint_id: int) -> HTTPRequest:
 	return _authed_get("/api/waypoints/%d/image" % waypoint_id)
 

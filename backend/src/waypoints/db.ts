@@ -1,6 +1,9 @@
 import { SQLiteError } from 'bun:sqlite';
 import { db } from '../db.js';
+import { addExp } from '../users/db.js';
 import type { WaypointRow, WaypointResponse } from '../types/index.js';
+
+const EXP_PER_DIFFICULTY = 20;
 
 db.run(`
     CREATE TABLE IF NOT EXISTS waypoints (
@@ -221,6 +224,7 @@ export function completeWaypoint(userId: number, qrSecret: string): { waypoint: 
         throw err;
     }
 
+    addExp(userId, waypoint.difficulty * EXP_PER_DIFFICULTY);
     return { waypoint };
 }
 

@@ -8,6 +8,7 @@ import { createAuthRouter } from './routes/auth.js';
 import { createWaypointRouter } from './routes/waypoints.js';
 import { createAchievementsRouter } from './routes/achievements.js';
 import { createMeRouter } from './routes/me.js';
+import { createLeaderboardRouter } from './routes/leaderboard.js';
 import { authMiddleware } from './auth/middleware.js';
 import { getKeys } from './auth/keys.js';
 
@@ -62,6 +63,10 @@ app.use(achievementsRouter.allowedMethods());
 const meRouter = createMeRouter();
 app.use(meRouter.routes());
 app.use(meRouter.allowedMethods());
+
+const leaderboardRouter = createLeaderboardRouter();
+app.use(leaderboardRouter.routes());
+app.use(leaderboardRouter.allowedMethods());
 
 app.listen(config.port, () => {
     console.log(`TerraTrail backend kører på http://localhost:${config.port}`);

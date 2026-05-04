@@ -4,12 +4,16 @@ const COLUMNS: int = 4
 const CELL_SIZE: Vector2 = Vector2(80, 80)
 const EXP_PER_LEVEL: int = 50
 const WAYPOINT_TILE := preload("res://scenes/components/WaypointTile.tscn")
+const LEADERBOARD_ROW := preload("res://scenes/components/LeaderboardRow.tscn")
 
 @onready var username_label: Label = %Username
 @onready var exp_bar: ProgressBar = %ExpBar
 @onready var exp_bar_label: Label = %ExpBarLabel
 @onready var achievement_grid: GridContainer = %AchievementGrid
 @onready var completed_grid: GridContainer = %CompletedGrid
+@onready var leaderboard_list: VBoxContainer = %LeaderboardList
+
+var _my_username: String = ""
 
 func _ready() -> void:
 	achievement_grid.columns = COLUMNS
@@ -32,15 +36,16 @@ func _on_me_response(result: int, code: int, _headers: PackedStringArray, body: 
 	if json.parse(body.get_string_from_utf8()) != OK:
 		return
 	var data: Dictionary = json.data
-	var username := String(data.get("username", ""))
+	_my_username = String(data.get("username", ""))
 	var exp_value: int = int(data.get("exp", 0))
 	var level: int = (exp_value / EXP_PER_LEVEL) + 1
 	var into_level: int = exp_value % EXP_PER_LEVEL
 	var next_threshold: int = level * EXP_PER_LEVEL
-	username_label.text = username
+	username_label.text = _my_username
 	exp_bar.max_value = EXP_PER_LEVEL
 	exp_bar.value = into_level
 	exp_bar_label.text = "Level %d (%d/%d exp)" % [level, exp_value, next_threshold]
+	_load_leaderboard()
 
 func _load_achievements() -> void:
 	var http := Backend.request_achievements()
@@ -90,3 +95,21 @@ func _on_achievement_pressed(entry: Dictionary) -> void:
 	var popup := get_tree().get_first_node_in_group("unlocked_achievement_popup")
 	if popup:
 		popup.open(entry)
+
+func _load_leaderboard() -> void:
+	var http := Backend.request_leaderboard()
+	http.request_completed.connect(_on_leaderboard_response.bind(http))
+
+func _on_leaderboard_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+	http.queue_free()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		return
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK:
+		return
+	var list: Array = json.data.get("entries", [])
+	for entry: Dictionary in list:
+		var row := LEADERBOARD_ROW.instantiate()
+		leaderboard_list.add_child(row)
+		var username := String(entry.get("username", ""))
+		row.populate(int(entry.get("rank", 0)), username, int(entry.get("exp", 0)), username == _my_username)

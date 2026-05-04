@@ -95,6 +95,7 @@ offset_bottom = -106.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="Sections" type="VBoxContainer" parent="ScrollContainer" unique_id=823626849]
 layout_mode = 2
@@ -134,6 +135,25 @@ size_flags_horizontal = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 4
+
+[node name="LeaderboardBox" type="Container" parent="ScrollContainer/Sections" unique_id=738422951]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_t7o64")
+script = ExtResource("2_fieldset")
+title = "Leaderboard"
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
+border_width = 1.0
+
+[node name="LeaderboardList" type="VBoxContainer" parent="ScrollContainer/Sections/LeaderboardBox" unique_id=602143788]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BottomSpacer" type="Control" parent="ScrollContainer/Sections"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
 
 [node name="UnlockedAchievementPopup" parent="." unique_id=266227988 instance=ExtResource("6_1syeu")]
 visible = false

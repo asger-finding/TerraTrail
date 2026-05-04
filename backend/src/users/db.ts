@@ -1,5 +1,5 @@
 import { db } from '../db.js';
-import type { PlayerDetails, MeResponse } from '../types/index.js';
+import type { PlayerDetails, MeResponse, LeaderboardEntry } from '../types/index.js';
 
 db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -24,6 +24,14 @@ const updateLastLogin = db.prepare<void, [number, number]>(
     'UPDATE users SET last_login = ? WHERE id = ?'
 );
 
+const addExpStatement = db.prepare<void, [number, number]>(
+    'UPDATE users SET exp = exp + ? WHERE id = ?'
+);
+
+export function addExp(userId: number, amount: number): void {
+    addExpStatement.run(amount, userId);
+}
+
 const selectMe = db.prepare<{ username: string; exp: number }, [number]>(
     'SELECT username, exp FROM users WHERE id = ?'
 );
@@ -31,6 +39,23 @@ const selectMe = db.prepare<{ username: string; exp: number }, [number]>(
 export function getMe(playerId: number): MeResponse | null {
     const row = selectMe.get(playerId);
     return row ? { username: row.username, exp: row.exp } : null;
+}
+
+const selectLeaderboard = db.prepare<LeaderboardEntry, [number]>(`
+    WITH ranked AS (
+        SELECT id, username, exp,
+               ROW_NUMBER() OVER (ORDER BY exp DESC, id ASC) AS rank
+        FROM users
+        WHERE exp > 0
+    )
+    SELECT rank, username, exp FROM ranked WHERE rank <= 10
+    UNION
+    SELECT rank, username, exp FROM ranked WHERE id = ? AND rank > 10
+    ORDER BY rank ASC
+`);
+
+export function getLeaderboard(playerId: number): LeaderboardEntry[] {
+    return selectLeaderboard.all(playerId);
 }
 
 export async function createUser(username: string, password: string): Promise<PlayerDetails> {
