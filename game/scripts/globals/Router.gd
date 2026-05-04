@@ -9,13 +9,14 @@ const PAGES := {
 	"waypoints": preload("res://scenes/pages/Waypoints.tscn"),
 	"profile": preload("res://scenes/pages/Profile.tscn"),
 	"achievements": preload("res://scenes/pages/Achievements.tscn"),
+	"scanner": preload("res://scenes/pages/Scanner.tscn"),
 }
 
 # Sider hvor vi viser kortet
 const PAGES_WITH_MAP: PackedStringArray = ["waypoints"]
 
 # Sider hvor navigationsbaren skal skjules
-const PAGES_WITHOUT_NAVBAR: PackedStringArray = ["splash", "login", "signup"]
+const PAGES_WITHOUT_NAVBAR: PackedStringArray = ["splash", "login", "signup", "scanner"]
 
 # Sider hvis instans beholdes i hukommelsen mellem besøg
 const PAGES_RETAINED: PackedStringArray = ["waypoints"]

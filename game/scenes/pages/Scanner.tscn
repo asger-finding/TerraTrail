@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://gt6f4plbx1nw"]
+
+[ext_resource type="Script" uid="uid://cury3pwnke5o" path="res://scripts/Scanner.gd" id="1_n7xqb"]
+[ext_resource type="Script" uid="uid://xf1nfokaa871" path="res://addons/NativeCameraPlugin/NativeCamera.gd" id="2_a2fmx"]
+[ext_resource type="Script" uid="uid://bgchg33tmbqh6" path="res://addons/QRPlugin/QR.gd" id="3_iwa7b"]
+
+[node name="Scanner" type="Control" unique_id=2018098615]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_n7xqb")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1438395050]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CameraView" type="TextureRect" parent="." unique_id=1681275150]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="StatusLabel" type="Label" parent="." unique_id=1936029378]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CancelButton" type="Button" parent="." unique_id=1529559717]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Annuller"
+
+[node name="NativeCamera" type="Node" parent="." unique_id=416326663]
+unique_name_in_owner = true
+script = ExtResource("2_a2fmx")
+metadata/_custom_type_script = "uid://xf1nfokaa871"
+
+[node name="QR" type="Node" parent="." unique_id=1343641400]
+unique_name_in_owner = true
+script = ExtResource("3_iwa7b")
+metadata/_custom_type_script = "uid://bgchg33tmbqh6"
+
+[connection signal="button_up" from="CancelButton" to="." method="_on_cancel_button_button_up"]

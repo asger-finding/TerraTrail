@@ -47,6 +47,11 @@ func request_waypoints(bbox: String) -> HTTPRequest:
 	http.request(url, auth_headers())
 	return http
 
+func complete_waypoint(qr_secret: String) -> Dictionary:
+	var url := BASE_URL + "/api/waypoints/complete"
+	var body := JSON.stringify({"qrSecret": qr_secret})
+	return await _post(url, body, auth_headers())
+
 func request_route(from: String, to: String, origin_lon: float, origin_lat: float) -> HTTPRequest:
 	var url := "%s/api/route?from=%s&to=%s&origin=%s,%s" % [
 		BASE_URL, from, to, str(origin_lon), str(origin_lat)
@@ -56,9 +61,12 @@ func request_route(from: String, to: String, origin_lon: float, origin_lat: floa
 	http.request(url, auth_headers())
 	return http
 
-func _post(url: String, body: String) -> Dictionary:
+func _post(url: String, body: String, headers: PackedStringArray = PackedStringArray()) -> Dictionary:
 	var http := HTTPRequest.new()
 	add_child(http)
+
+	if headers.is_empty():
+		headers = PackedStringArray(["Content-Type: application/json"])
 
 	var promise := Promise.new()
 	http.request_completed.connect(func(result: int, code: int, _headers: PackedStringArray, response_body: PackedByteArray) -> void:
@@ -77,5 +85,5 @@ func _post(url: String, body: String) -> Dictionary:
 		promise.set_result({"ok": true, "data": data})
 	)
 
-	http.request(url, PackedStringArray(["Content-Type: application/json"]), HTTPClient.METHOD_POST, body)
+	http.request(url, headers, HTTPClient.METHOD_POST, body)
 	return await promise.async()

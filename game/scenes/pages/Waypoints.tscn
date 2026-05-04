@@ -23,6 +23,7 @@ const SPINNER_SPEED: float = 6.0
 @onready var perspective_icon: TextureRect = %PerspectiveIcon
 @onready var back_button: Button = %BackToPlayerButton
 @onready var stop_route_button: Button = %StopRouteButton
+@onready var scan_button: Button = %ScanButton
 @onready var no_gps_error: ColorRect = %NoGPSError
 
 var _tile_manager: Node
@@ -79,7 +80,9 @@ func _process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group(\"player\")
 	no_gps_error.visible = player != null and player.gps_fix_missing and not player.gps_wait_active
 	var route_path := get_tree().get_first_node_in_group(\"route_path\")
-	stop_route_button.visible = route_path != null and route_path.is_active()
+	var route_active: bool = route_path != null and route_path.is_active()
+	stop_route_button.visible = route_active
+	scan_button.visible = route_active
 	if loading_overlay.visible:
 		_update_loading_label()
 		var mat := spinner.material as ShaderMaterial
@@ -113,6 +116,9 @@ func _on_stop_route_pressed() -> void:
 	var route_path := get_tree().get_first_node_in_group(\"route_path\")
 	if route_path:
 		route_path.clear_route()
+
+func _on_scan_pressed() -> void:
+	Router.push(\"scanner\")
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enqju"]
@@ -289,6 +295,23 @@ theme = SubResource("Theme_enqju")
 text = "X"
 icon_alignment = 1
 
+[node name="ScanButton" type="Button" parent="." unique_id=1577820413]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(80, 76)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -304.0
+offset_right = 96.0
+offset_bottom = -228.0
+grow_vertical = 0
+theme = SubResource("Theme_enqju")
+text = "C"
+icon_alignment = 1
+
 [node name="LoadingOverlay" type="Control" parent="." unique_id=7412301]
 unique_name_in_owner = true
 layout_mode = 1
@@ -381,3 +404,4 @@ vertical_alignment = 1
 [connection signal="pressed" from="HUDBottomRight/TopDownButton" to="." method="_on_top_down_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/BackToPlayerButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="StopRouteButton" to="." method="_on_stop_route_pressed"]
+[connection signal="pressed" from="ScanButton" to="." method="_on_scan_pressed"]
