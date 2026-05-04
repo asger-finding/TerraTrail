@@ -28,16 +28,13 @@ func _load_me() -> void:
 	var http := Backend.request_me()
 	http.request_completed.connect(_on_me_response.bind(http))
 
-func _on_me_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_me_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
-	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		return
 	var json := JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		return
+	json.parse(body.get_string_from_utf8())
 	var data: Dictionary = json.data
-	_my_username = String(data.get("username", ""))
-	var exp_value: int = int(data.get("exp", 0))
+	_my_username = data["username"]
+	var exp_value: int = data["exp"]
 	var level: int = (exp_value / EXP_PER_LEVEL) + 1
 	var into_level: int = exp_value % EXP_PER_LEVEL
 	var next_threshold: int = level * EXP_PER_LEVEL
@@ -51,31 +48,23 @@ func _load_achievements() -> void:
 	var http := Backend.request_achievements()
 	http.request_completed.connect(_on_achievements_response.bind(http))
 
-func _on_achievements_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_achievements_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
-	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		return
 	var json := JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		return
-	var list: Array = json.data.get("achievements", [])
-	for entry: Dictionary in list:
+	json.parse(body.get_string_from_utf8())
+	for entry: Dictionary in json.data["achievements"]:
 		achievement_grid.add_child(_make_achievement_cell(entry))
 
 func _load_completed() -> void:
 	var http := Backend.request_completed_waypoints()
 	http.request_completed.connect(_on_completed_response.bind(http))
 
-func _on_completed_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_completed_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
-	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		return
 	var json := JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		return
-	var list: Array = json.data.get("waypoints", [])
-	for wp: Dictionary in list:
-		if String(wp.get("imagePath", "")).is_empty():
+	json.parse(body.get_string_from_utf8())
+	for wp: Dictionary in json.data["waypoints"]:
+		if String(wp["imagePath"]).is_empty():
 			continue
 		var tile := WAYPOINT_TILE.instantiate()
 		completed_grid.add_child(tile)
@@ -86,30 +75,24 @@ func _make_achievement_cell(entry: Dictionary) -> Control:
 	btn.custom_minimum_size = CELL_SIZE
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	btn.texture_normal = load("res://assets/achievements/%d.svg" % int(entry.get("id", 0)))
-	btn.tooltip_text = "%s\n%s" % [String(entry.get("title", "")), String(entry.get("description", ""))]
+	btn.texture_normal = load("res://assets/achievements/%d.svg" % int(entry["id"]))
+	btn.tooltip_text = "%s\n%s" % [entry["title"], entry["description"]]
 	btn.pressed.connect(_on_achievement_pressed.bind(entry))
 	return btn
 
 func _on_achievement_pressed(entry: Dictionary) -> void:
 	var popup := get_tree().get_first_node_in_group("unlocked_achievement_popup")
-	if popup:
-		popup.open(entry)
+	popup.open(entry)
 
 func _load_leaderboard() -> void:
 	var http := Backend.request_leaderboard()
 	http.request_completed.connect(_on_leaderboard_response.bind(http))
 
-func _on_leaderboard_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_leaderboard_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
-	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		return
 	var json := JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		return
-	var list: Array = json.data.get("entries", [])
-	for entry: Dictionary in list:
+	json.parse(body.get_string_from_utf8())
+	for entry: Dictionary in json.data["entries"]:
 		var row := LEADERBOARD_ROW.instantiate()
 		leaderboard_list.add_child(row)
-		var username := String(entry.get("username", ""))
-		row.populate(int(entry.get("rank", 0)), username, int(entry.get("exp", 0)), username == _my_username)
+		row.populate(int(entry["rank"]), entry["username"], int(entry["exp"]), entry["username"] == _my_username)

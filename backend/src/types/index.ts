@@ -10,8 +10,6 @@ export interface TileMeshData {
     x: number;
     y: number;
     z: number;
-    /** Offset i meter fra responsens origin (x = øst, y = syd). */
-    origin: { x: number; y: number };
     ground: MeshLayer;
     buildings: MeshLayer;
     roads: MeshLayer;
@@ -21,8 +19,6 @@ export interface TileMeshData {
 
 /** API-respons for `GET /api/tiles`. */
 export interface TileResponse {
-    /** Fælles WGS84-referencepunkt (bbox-centrum). */
-    origin: { lon: number; lat: number };
     tiles: TileMeshData[];
 }
 
@@ -123,7 +119,7 @@ export interface WaypointResponse {
     difficulty: number;
     latitude: number;
     longitude: number;
-    imagePath: string | null;
+    imagePath: string;
     created: number;
     updated: number;
     isCompleted: boolean;

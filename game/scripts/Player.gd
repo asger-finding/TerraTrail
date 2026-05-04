@@ -13,7 +13,7 @@ const BODY_LERP_RATE: float = 6.0
 const WALK_TIMEOUT: float = 1.5  # sek. uden bevægelse før vi falder tilbage til idle
 const ANIM_FADE: float = 0.2
 const HEAD_BONE_NAME: String = "neck"
-const ANIM_WALK: String = "walk"
+const ANIM_WALK: String = "Walk"
 const ANIM_IDLE: String = "idle"
 
 @export var compass_offset_deg: float = 0.0
@@ -40,8 +40,8 @@ func _ready() -> void:
 	add_to_group("player")
 	_anim_player = find_child("AnimationPlayer", true, false)
 	_skeleton = find_child("Skeleton3D", true, false)
-	if _skeleton:
-		_head_bone_idx = _skeleton.find_bone(HEAD_BONE_NAME)
+	_head_bone_idx = _skeleton.find_bone(HEAD_BONE_NAME)
+	_anim_player.get_animation(ANIM_WALK).loop_mode = Animation.LOOP_LINEAR
 	body_yaw = deg_to_rad(-heading)
 	_play_anim(ANIM_IDLE)
 	_use_sensors = OS.get_name() == "Android"
@@ -166,8 +166,7 @@ func _update_transform(delta: float = 0.0) -> void:
 
 	yaw_delta = clampf(yaw_delta, -HEAD_TURN_MAX_RAD, HEAD_TURN_MAX_RAD)
 	rotation.y = body_yaw
-	if _skeleton and _head_bone_idx != -1:
-		_skeleton.set_bone_pose_rotation(_head_bone_idx, Quaternion(Vector3.UP, yaw_delta))
+	_skeleton.set_bone_pose_rotation(_head_bone_idx, Quaternion(Vector3.UP, yaw_delta))
 	Coordinates.player_lon = lon
 	Coordinates.player_lat = lat
 	Coordinates.player_world_pos = position
@@ -179,8 +178,6 @@ func _update_anim_state() -> void:
 
 func _play_anim(name: String) -> void:
 	if name == _current_anim:
-		return
-	if _anim_player == null or not _anim_player.has_animation(name):
 		return
 	_anim_player.play(name, ANIM_FADE)
 	_current_anim = name

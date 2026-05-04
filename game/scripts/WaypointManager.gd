@@ -15,9 +15,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var route_path := get_tree().get_first_node_in_group("route_path")
-	var new_id: int = route_path.active_waypoint_id if route_path else -1
-	if new_id != _active_waypoint_id:
-		_active_waypoint_id = new_id
+	if route_path.active_waypoint_id != _active_waypoint_id:
+		_active_waypoint_id = route_path.active_waypoint_id
 		_refresh_visibility()
 
 func _refresh_visibility() -> void:
@@ -34,14 +33,11 @@ func _on_tile_loaded(coord: Vector3i) -> void:
 
 	var http := Backend.request_waypoints(bbox)
 	http.request_completed.connect(
-		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+		func(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 			http.queue_free()
-			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-				return
 			var json := JSON.new()
-			if json.parse(body.get_string_from_utf8()) != OK:
-				return
-			_spawn_waypoints(coord, json.data.get("waypoints", []))
+			json.parse(body.get_string_from_utf8())
+			_spawn_waypoints(coord, json.data["waypoints"])
 	)
 
 func _on_tile_unloaded(coord: Vector3i) -> void:

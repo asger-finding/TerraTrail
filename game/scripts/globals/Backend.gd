@@ -41,10 +41,8 @@ func _authed_get(path: String) -> HTTPRequest:
 func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
 	return _authed_get("/api/tiles?bbox=%s&zoom=%d" % [bbox, zoom])
 
-func request_tile(x: int, y: int, z: int, origin_lon: float, origin_lat: float) -> HTTPRequest:
-	return _authed_get("/api/tile?x=%d&y=%d&z=%d&originLon=%s&originLat=%s" % [
-		x, y, z, str(origin_lon), str(origin_lat)
-	])
+func request_tile(x: int, y: int, z: int) -> HTTPRequest:
+	return _authed_get("/api/tile?x=%d&y=%d&z=%d" % [x, y, z])
 
 func request_waypoints(bbox: String) -> HTTPRequest:
 	return _authed_get("/api/waypoints?bbox=%s" % bbox)

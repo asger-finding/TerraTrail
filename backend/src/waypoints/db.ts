@@ -159,7 +159,7 @@ function toFormattedResponse(row: WaypointRow & { is_completed: number; is_favou
         difficulty: row.difficulty,
         latitude: row.latitude,
         longitude: row.longitude,
-        imagePath: row.image_path,
+        imagePath: row.image_path ?? '',
         created: row.created,
         updated: row.updated,
         isCompleted: row.is_completed === 1,

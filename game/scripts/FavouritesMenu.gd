@@ -32,10 +32,8 @@ func _on_favourites_response(result: int, code: int, _headers: PackedStringArray
 		status_label.text = "Kunne ikke hente favoritter"
 		return
 	var json := JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK:
-		status_label.text = "Ugyldigt svar fra server"
-		return
-	_waypoints = json.data.get("waypoints", [])
+	json.parse(body.get_string_from_utf8())
+	_waypoints = json.data["waypoints"]
 	_populate()
 
 func _populate() -> void:
@@ -56,8 +54,6 @@ func _clear_list() -> void:
 
 func _on_row_pressed(wp: Dictionary) -> void:
 	var popup := get_tree().get_first_node_in_group("waypoint_popup")
-	if popup == null:
-		return
 	popup.closed.connect(_on_popup_closed, CONNECT_ONE_SHOT)
 	visible = false
 	popup.open(wp)

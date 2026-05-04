@@ -29,23 +29,20 @@ func _ready() -> void:
 	start_button.pressed.connect(_on_start_pressed)
 	favourite_button.pressed.connect(_on_favourite_pressed)
 
-	var stars_node := find_child("DifficultyStars", true, false)
-	if stars_node:
-		for child in stars_node.get_children():
-			if child is TextureRect:
-				_stars.append(child)
+	for child: TextureRect in find_child("DifficultyStars", true, false).get_children():
+		_stars.append(child)
 
 func open(data: Dictionary) -> void:
-	_waypoint_id = int(data.get("id", -1))
-	_waypoint_lon = float(data.get("longitude", 0.0))
-	_waypoint_lat = float(data.get("latitude", 0.0))
-	_is_favourited = bool(data.get("isFavourited", false))
-	title_label.text = String(data.get("title", ""))
-	description_label.text = String(data.get("description", ""))
-	completed_badge.visible = bool(data.get("isCompleted", false))
-	_update_stars(int(data.get("difficulty", 1)))
+	_waypoint_id = int(data["id"])
+	_waypoint_lon = float(data["longitude"])
+	_waypoint_lat = float(data["latitude"])
+	_is_favourited = data["isFavourited"]
+	title_label.text = data["title"]
+	description_label.text = data["description"]
+	completed_badge.visible = data["isCompleted"]
+	_update_stars(int(data["difficulty"]))
 	_update_favourite_visual()
-	_load_image_hint(String(data.get("imagePath", "")))
+	_load_image_hint(data["imagePath"])
 	visible = true
 
 func close(via_start: bool = false) -> void:
@@ -59,18 +56,15 @@ func _update_stars(difficulty: int) -> void:
 
 func _on_start_pressed() -> void:
 	var route_path := get_tree().get_first_node_in_group("route_path")
-	if route_path:
-		route_path.request_route(_waypoint_lon, _waypoint_lat, _waypoint_id)
+	route_path.request_route(_waypoint_lon, _waypoint_lat, _waypoint_id)
 	close(true)
 
 func _on_favourite_pressed() -> void:
-	if _waypoint_id < 0:
-		return
 	favourite_button.disabled = true
 	var result: Dictionary = await Backend.toggle_favourite(_waypoint_id)
 	favourite_button.disabled = false
-	if result.get("ok", false):
-		_is_favourited = bool(result.get("data", {}).get("favourited", false))
+	if result["ok"]:
+		_is_favourited = result["data"]["favourited"]
 		_update_favourite_visual()
 
 func _update_favourite_visual() -> void:

@@ -15,11 +15,14 @@ const LOAD_RADIUS: int = 2
 const UNLOAD_RADIUS: int = 3
 const FINE_ZOOM: int = 14
 const ZOOM_DEBOUNCE: float = 1.0
+const TILE_CACHE_MAX: int = 256
+const CACHE_DIR: String = "user://tile_cache"
 
 const LAYER_NAMES: PackedStringArray = ["ground", "landcover", "water", "roads", "buildings"]
 
 var _loaded_tiles: Dictionary = {}
 var _pending_tiles: Dictionary = {}
+var _tile_cache: Dictionary = {}  # Vector3i -> PackedByteArray (raw msgpack body)
 var _player_tile: Vector3i = Vector3i.ZERO
 var _pending_zoom: int = -1
 var _pending_zoom_time: float = 0.0
@@ -27,6 +30,7 @@ var _fade_material: ShaderMaterial
 
 func _ready() -> void:
 	add_to_group("tile_manager")
+	DirAccess.make_dir_recursive_absolute(CACHE_DIR)
 	_setup_outline()
 	_setup_distance_fade()
 
@@ -59,11 +63,10 @@ func _start_loading() -> void:
 	_update_tiles()
 
 func _process(_delta: float) -> void:
-	if _fade_material:
-		_fade_material.set_shader_parameter(
-			"player_pos",
-			Vector2(Coordinates.player_world_pos.x, Coordinates.player_world_pos.z)
-		)
+	_fade_material.set_shader_parameter(
+		"player_pos",
+		Vector2(Coordinates.player_world_pos.x, Coordinates.player_world_pos.z)
+	)
 
 	if not Coordinates.is_origin_set():
 		return
@@ -117,15 +120,44 @@ func _update_tiles() -> void:
 
 func _request_tile(coord: Vector3i) -> void:
 	_pending_tiles[coord] = true
-	var http := Backend.request_tile(coord.x, coord.y, coord.z, Coordinates.world_origin_lon, Coordinates.world_origin_lat)
+	if coord in _tile_cache:
+		WorkerThreadPool.add_task(_decode_and_build.bind(_tile_cache[coord], coord))
+		return
+	var disk_body := _cache_load_disk(coord)
+	if not disk_body.is_empty():
+		_cache_put(coord, disk_body)
+		WorkerThreadPool.add_task(_decode_and_build.bind(disk_body, coord))
+		return
+	var http := Backend.request_tile(coord.x, coord.y, coord.z)
 	http.request_completed.connect(
 		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 			http.queue_free()
 			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 				_pending_tiles.erase(coord)
 				return
+			_cache_put(coord, body)
+			WorkerThreadPool.add_task(_cache_save_disk.bind(coord, body))
 			WorkerThreadPool.add_task(_decode_and_build.bind(body, coord))
 	)
+
+func _cache_put(coord: Vector3i, body: PackedByteArray) -> void:
+	if _tile_cache.size() >= TILE_CACHE_MAX:
+		_tile_cache.erase(_tile_cache.keys()[0])
+	_tile_cache[coord] = body
+
+func _cache_path(coord: Vector3i) -> String:
+	return "%s/%d_%d_%d.bin" % [CACHE_DIR, coord.z, coord.x, coord.y]
+
+func _cache_load_disk(coord: Vector3i) -> PackedByteArray:
+	var path := _cache_path(coord)
+	if not FileAccess.file_exists(path):
+		return PackedByteArray()
+	var f := FileAccess.open(path, FileAccess.READ)
+	return f.get_buffer(f.get_length())
+
+func _cache_save_disk(coord: Vector3i, body: PackedByteArray) -> void:
+	var f := FileAccess.open(_cache_path(coord), FileAccess.WRITE)
+	f.store_buffer(body)
 
 # Kører msgpack-dekodning og mesh-opbygning på worker thread.
 # Main thread tilføjer kun MeshInstance3D noderne til scenen.
@@ -140,8 +172,8 @@ func _decode_and_build(body: PackedByteArray, coord: Vector3i) -> void:
 		call_deferred("_pending_tiles_erase", coord)
 		return
 
-	var origin: Dictionary = tile.get("origin", {})
-	var offset := Vector3(origin.get("x", 0.0), 0.0, origin.get("y", 0.0))
+	var top_left := Coordinates.tile_to_lon_lat(coord.x, coord.y, coord.z)
+	var offset := Coordinates.lon_lat_to_world(top_left.x, top_left.y)
 
 	var built: Array[Dictionary] = []
 	for layer_name: String in LAYER_NAMES:
