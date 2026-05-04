@@ -1,3 +1,4 @@
+import { SQLiteError } from 'bun:sqlite';
 import { db } from '../db.js';
 import type { WaypointRow, WaypointResponse } from '../types/index.js';
 
@@ -165,7 +166,7 @@ export function completeWaypoint(userId: number, qrSecret: string): { waypoint: 
     try {
         insertCompletion.get(userId, waypoint.id, Date.now());
     } catch (err: unknown) {
-        if (err instanceof Error && err.message.includes('UNIQUE constraint')) return { error: 'Allerede gennemført' };
+        if (err instanceof SQLiteError && err.code === 'SQLITE_CONSTRAINT_UNIQUE') return { error: 'Allerede gennemført' };
         throw err;
     }
 

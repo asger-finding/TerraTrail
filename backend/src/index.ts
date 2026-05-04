@@ -29,7 +29,7 @@ app.use(async (ctx, next) => {
     } catch (err: unknown) {
         console.error('Request error:', err);
         const status = err instanceof Error && 'status' in err ? (err as { status: number }).status : 500;
-        const message = err instanceof Error ? err.message : '500 Intern serverfejl';
+        const message = status < 500 && err instanceof Error ? err.message : 'Intern serverfejl';
         ctx.status = status;
         ctx.body = { error: message };
     }

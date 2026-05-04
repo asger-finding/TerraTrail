@@ -1,4 +1,5 @@
 import Router from '@koa/router';
+import { SQLiteError } from 'bun:sqlite';
 import { createUser, authenticateUser } from '../users/db.js';
 import { signToken } from '../auth/jwt.js';
 import { revokeToken } from '../auth/revoked.js';
@@ -36,7 +37,7 @@ export function createAuthRouter(): Router {
             ctx.status = 201;
             ctx.body = { token, player };
         } catch (err: unknown) {
-            if (err instanceof Error && err.message.includes('UNIQUE')) {
+            if (err instanceof SQLiteError && err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
                 ctx.status = 409;
                 ctx.body = { error: 'Username er allerede taget' };
                 return;
