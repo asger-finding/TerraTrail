@@ -5,5 +5,8 @@ extends Node
 @onready var navbar: Control = %Navbar
 
 func _ready() -> void:
-	Router.setup(page_container, map, navbar);
-	Router.goto("splash")
+	Router.setup(page_container, map, navbar)
+	if PlayerState.is_authenticated():
+		Router.goto("waypoints")
+	else:
+		Router.goto("splash")

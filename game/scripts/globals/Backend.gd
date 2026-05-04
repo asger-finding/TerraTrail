@@ -24,10 +24,18 @@ func auth_headers() -> PackedStringArray:
 		"Authorization: Bearer %s" % PlayerState.token
 	])
 
+func _watch_unauth(http: HTTPRequest) -> void:
+	http.request_completed.connect(func(_result: int, code: int, _h: PackedStringArray, _b: PackedByteArray) -> void:
+		if code == 401 and PlayerState.is_authenticated():
+			PlayerState.clear()
+			Router.goto("splash")
+	)
+
 func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
 	var url := "%s/api/tiles?bbox=%s&zoom=%d" % [BASE_URL, bbox, zoom]
 	var http := HTTPRequest.new()
 	add_child(http)
+	_watch_unauth(http)
 	http.request(url, auth_headers())
 	return http
 
@@ -37,6 +45,7 @@ func request_tile(x: int, y: int, z: int, origin_lon: float, origin_lat: float) 
 	]
 	var http := HTTPRequest.new()
 	add_child(http)
+	_watch_unauth(http)
 	http.request(url, auth_headers())
 	return http
 
@@ -44,6 +53,7 @@ func request_waypoints(bbox: String) -> HTTPRequest:
 	var url := "%s/api/waypoints?bbox=%s" % [BASE_URL, bbox]
 	var http := HTTPRequest.new()
 	add_child(http)
+	_watch_unauth(http)
 	http.request(url, auth_headers())
 	return http
 
@@ -58,6 +68,7 @@ func request_route(from: String, to: String, origin_lon: float, origin_lat: floa
 	]
 	var http := HTTPRequest.new()
 	add_child(http)
+	_watch_unauth(http)
 	http.request(url, auth_headers())
 	return http
 
@@ -67,6 +78,11 @@ func _post(url: String, body: String, headers: PackedStringArray = PackedStringA
 
 	if headers.is_empty():
 		headers = PackedStringArray(["Content-Type: application/json"])
+
+	for header: String in headers:
+		if header.begins_with("Authorization:"):
+			_watch_unauth(http)
+			break
 
 	var promise := Promise.new()
 	http.request_completed.connect(func(result: int, code: int, _headers: PackedStringArray, response_body: PackedByteArray) -> void:
