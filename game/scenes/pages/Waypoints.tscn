@@ -9,6 +9,8 @@
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="4_nbrd0"]
 [ext_resource type="Texture2D" uid="uid://crqplpba4cehd" path="res://assets/ui/perspective_grid.png" id="5_ud44u"]
 [ext_resource type="Material" uid="uid://ck68wmlpan5st" path="res://materials/SpinnerShadow.tres" id="6_spnsh"]
+[ext_resource type="Texture2D" uid="uid://dodxhsjxt3rlf" path="res://assets/ui/exit.png" id="7_bblgw"]
+[ext_resource type="Texture2D" uid="uid://dow65knrcge5g" path="res://assets/ui/camera.png" id="7_t0ev6"]
 [ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="9_ior6d"]
 [ext_resource type="PackedScene" uid="uid://brnaylessdfb0" path="res://scenes/components/FavouritesPopup.tscn" id="10_rsvsc"]
 
@@ -314,8 +316,19 @@ offset_right = 96.0
 offset_bottom = -136.0
 grow_vertical = 0
 theme = SubResource("Theme_enqju")
-text = "X"
 icon_alignment = 1
+
+[node name="ExitIcon" type="TextureRect" parent="StopRouteButton" unique_id=112100994]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_bblgw")
+expand_mode = 1
 
 [node name="ScanButton" type="Button" parent="." unique_id=1577820413]
 unique_name_in_owner = true
@@ -331,8 +344,19 @@ offset_right = 96.0
 offset_bottom = -228.0
 grow_vertical = 0
 theme = SubResource("Theme_enqju")
-text = "C"
 icon_alignment = 1
+
+[node name="CameraIcon" type="TextureRect" parent="ScanButton" unique_id=1086266115]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_t0ev6")
+expand_mode = 1
 
 [node name="LoadingOverlay" type="Control" parent="." unique_id=7412301]
 unique_name_in_owner = true
@@ -363,10 +387,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -48.0
-offset_top = -48.0
-offset_right = 48.0
-offset_bottom = 48.0
+offset_left = -150.0
+offset_top = -200.0
+offset_right = 150.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_spnr")
@@ -382,9 +406,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = 170.0
+offset_top = 120.0
 offset_right = 150.0
-offset_bottom = 210.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Indlæser 0/0 tiles"
@@ -406,9 +430,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -118.125
+offset_left = -137.562
 offset_top = -410.0
-offset_right = 118.125
+offset_right = 137.56299
 offset_bottom = -356.5
 grow_horizontal = 2
 grow_vertical = 2
@@ -419,7 +443,7 @@ layout_mode = 0
 offset_left = 4.0
 offset_right = 233.0
 offset_bottom = 51.0
-text = "MISLYKKEDES AT LAVE
+text = "MISLYKKEDES AT OPRETTE
 GPS-FORBINDELSE"
 label_settings = SubResource("LabelSettings_ior6d")
 horizontal_alignment = 1

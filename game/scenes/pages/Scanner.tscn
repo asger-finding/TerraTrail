@@ -2,7 +2,10 @@
 
 [ext_resource type="Script" uid="uid://cury3pwnke5o" path="res://scripts/Scanner.gd" id="1_n7xqb"]
 [ext_resource type="Script" uid="uid://xf1nfokaa871" path="res://addons/NativeCameraPlugin/NativeCamera.gd" id="2_a2fmx"]
+[ext_resource type="Texture2D" uid="uid://c0x5nk1cy3c3d" path="res://assets/ui/scan.webp" id="2_iwa7b"]
 [ext_resource type="Script" uid="uid://bgchg33tmbqh6" path="res://addons/QRPlugin/QR.gd" id="3_iwa7b"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="5_pltf1"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="6_hckhj"]
 
 [node name="Scanner" type="Control" unique_id=2018098615]
 layout_mode = 3
@@ -33,6 +36,15 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
 
+[node name="ScanMargins" type="TextureRect" parent="." unique_id=826371447]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_iwa7b")
+
 [node name="StatusLabel" type="Label" parent="." unique_id=1936029378]
 unique_name_in_owner = true
 layout_mode = 1
@@ -42,18 +54,14 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -20.0
-offset_top = -23.0
+offset_top = -60.0
 offset_right = 20.0
+offset_bottom = -37.0
 grow_horizontal = 2
 grow_vertical = 0
+theme = ExtResource("5_pltf1")
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="CancelButton" type="Button" parent="." unique_id=1529559717]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
-text = "Annuller"
 
 [node name="NativeCamera" type="Node" parent="." unique_id=416326663]
 unique_name_in_owner = true
@@ -64,5 +72,16 @@ metadata/_custom_type_script = "uid://xf1nfokaa871"
 unique_name_in_owner = true
 script = ExtResource("3_iwa7b")
 metadata/_custom_type_script = "uid://bgchg33tmbqh6"
+
+[node name="CancelButton" type="Button" parent="." unique_id=783988696]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 16.0
+offset_top = 20.0
+offset_right = 54.0
+offset_bottom = 53.0
+theme = ExtResource("5_pltf1")
+text = "  x  "
+script = ExtResource("6_hckhj")
 
 [connection signal="button_up" from="CancelButton" to="." method="_on_cancel_button_button_up"]
