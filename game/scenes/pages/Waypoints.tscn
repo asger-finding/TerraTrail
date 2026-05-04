@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://dpn7atx12h050" path="res://assets/ui/Compass.svg" id="1_51nhm"]
 [ext_resource type="Texture2D" uid="uid://cex4ei5ce60fc" path="res://assets/ui/favourites_active.webp" id="2_4gqi3"]
-[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="2_6q7fh"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="2_6q7fh"]
 [ext_resource type="Texture2D" uid="uid://cvy5dbnt7uapf" path="res://assets/ui/Spinner.svg" id="2_spnr"]
 [ext_resource type="Material" uid="uid://cgtkn58p57etv" path="res://materials/DropShadow.tres" id="3_eb568"]
 [ext_resource type="Texture2D" uid="uid://enfr0lbfgs80" path="res://assets/ui/ortho_grid.png" id="4_enqju"]
@@ -68,8 +68,8 @@ func _process(delta: float) -> void:
 	var cam := _find_camera()
 	if cam:
 		var following: bool = cam.mode == cam.Mode.FOLLOW
-		var normal_color: Color = Color.DODGER_BLUE if following else Color(\"#ababab\")
-		var pressed_color := Color(\"#737373\")
+		var normal_color: Color = Color.DODGER_BLUE if following else Color(\"#487058\")
+		var pressed_color := Color(\"#487058\")
 		back_button.add_theme_color_override(\"font_color\", normal_color)
 		back_button.add_theme_color_override(\"font_hover_color\", normal_color)
 		back_button.add_theme_color_override(\"font_focus_color\", normal_color)
@@ -145,6 +145,7 @@ border_width_left = 3
 border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
 corner_radius_top_left = 1000
 corner_radius_top_right = 1000
 corner_radius_bottom_right = 1000

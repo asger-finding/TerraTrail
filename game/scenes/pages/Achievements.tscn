@@ -1,3 +1,140 @@
 [gd_scene format=3 uid="uid://ccckc7qko4ri4"]
 
-[node name="Achievements" type="Node" unique_id=420706554]
+[ext_resource type="Script" uid="uid://f6q223x2k10u" path="res://scripts/Achievements.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b6c2oqgcba27j" path="res://scripts/classes/FieldsetBox.gd" id="2_fieldset"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="2_iuner"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_t7o64"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_0ytqp"]
+[ext_resource type="PackedScene" uid="uid://q2pcjfcou1td" path="res://scenes/components/UnlockedAchievementPopup.tscn" id="6_1syeu"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0ytqp"]
+font = ExtResource("3_0ytqp")
+font_size = 24
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.20784314)
+shadow_offset = Vector2(2, 2)
+
+[node name="Achievements" type="Control" unique_id=1103484232]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1639178105]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_iuner")
+expand_mode = 1
+
+[node name="Header" type="HBoxContainer" parent="." unique_id=476131073]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 44.0
+offset_right = -16.0
+offset_bottom = 117.0
+grow_horizontal = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderInfo" type="VBoxContainer" parent="Header" unique_id=2092867099]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Username" type="Label" parent="Header/HeaderInfo" unique_id=1752304271]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Brugernavn"
+label_settings = SubResource("LabelSettings_0ytqp")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="Header/HeaderInfo" unique_id=125466044]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+
+[node name="ExpBar" type="ProgressBar" parent="Header/HeaderInfo" unique_id=1753271322]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme = ExtResource("2_t7o64")
+show_percentage = false
+
+[node name="ExpBarLabel" type="Label" parent="Header/HeaderInfo/ExpBar" unique_id=1994414000]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 16
+text = "Level x (xx / yy exp)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1135407892]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 140.0
+offset_right = -16.0
+offset_bottom = -106.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Sections" type="VBoxContainer" parent="ScrollContainer" unique_id=823626849]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="AchievementBox" type="Container" parent="ScrollContainer/Sections" unique_id=1478387866]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_t7o64")
+script = ExtResource("2_fieldset")
+title = "Bedrifter"
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
+border_width = 1.0
+
+[node name="AchievementGrid" type="GridContainer" parent="ScrollContainer/Sections/AchievementBox" unique_id=1369081233]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="CompletedBox" type="Container" parent="ScrollContainer/Sections" unique_id=516438944]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_t7o64")
+script = ExtResource("2_fieldset")
+title = "Gennemførte waypoints"
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
+border_width = 1.0
+
+[node name="CompletedGrid" type="GridContainer" parent="ScrollContainer/Sections/CompletedBox" unique_id=1827575562]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="UnlockedAchievementPopup" parent="." unique_id=266227988 instance=ExtResource("6_1syeu")]
+visible = false
+layout_mode = 1

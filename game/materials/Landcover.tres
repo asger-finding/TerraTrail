@@ -3,5 +3,5 @@
 [resource]
 disable_fog = true
 disable_specular_occlusion = true
-albedo_color = Color(0.2886, 0.74, 0.3186933, 1)
+albedo_color = Color(0.16589999, 0.79, 0.43634337, 1)
 disable_receive_shadows = true

@@ -1,5 +1,5 @@
 import { db } from '../db.js';
-import type { PlayerDetails } from '../types/index.js';
+import type { PlayerDetails, MeResponse } from '../types/index.js';
 
 db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -7,7 +7,8 @@ db.run(`
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         created INTEGER NOT NULL,
-        last_login INTEGER NOT NULL
+        last_login INTEGER NOT NULL,
+        exp INTEGER NOT NULL DEFAULT 0
     )
 `);
 
@@ -22,6 +23,15 @@ const findByUsername = db.prepare<{ id: number; username: string; password_hash:
 const updateLastLogin = db.prepare<void, [number, number]>(
     'UPDATE users SET last_login = ? WHERE id = ?'
 );
+
+const selectMe = db.prepare<{ username: string; exp: number }, [number]>(
+    'SELECT username, exp FROM users WHERE id = ?'
+);
+
+export function getMe(playerId: number): MeResponse | null {
+    const row = selectMe.get(playerId);
+    return row ? { username: row.username, exp: row.exp } : null;
+}
 
 export async function createUser(username: string, password: string): Promise<PlayerDetails> {
     const hash = await Bun.password.hash(password, { algorithm: 'argon2id' });

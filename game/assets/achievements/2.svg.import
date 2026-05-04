@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://14s5n8l7ij4m"
-path="res://.godot/imported/button_pressed.webp-f1f7fcc68390ca5fab541c3c3d7f4372.ctex"
+uid="uid://dyx227as4rcqr"
+path="res://.godot/imported/2.svg-0ad2f5428fa336e49718bb057f84fa93.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/button_pressed.webp"
-dest_files=["res://.godot/imported/button_pressed.webp-f1f7fcc68390ca5fab541c3c3d7f4372.ctex"]
+source_file="res://assets/achievements/2.svg"
+dest_files=["res://.godot/imported/2.svg-0ad2f5428fa336e49718bb057f84fa93.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

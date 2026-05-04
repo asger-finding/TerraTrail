@@ -1,17 +1,34 @@
 import Router from '@koa/router';
 import { encodeQR } from 'qr';
+import sharp from 'sharp';
+import { mkdirSync, existsSync, createReadStream } from 'node:fs';
+import path from 'node:path';
 import type { AuthUser } from '../types/index.js';
 import {
     createWaypoint,
     getWaypointsInBBox,
     getWaypoint,
     getFavourites,
+    getCompletions,
     updateWaypoint,
     deleteWaypoint,
     completeWaypoint,
     toggleFavourite,
-    getWaypointSecret
+    getWaypointSecret,
+    setWaypointImage,
+    isWaypointCreator
 } from '../waypoints/db.js';
+
+const IMAGE_DIR = path.resolve('data/waypoint_images');
+mkdirSync(IMAGE_DIR, { recursive: true });
+
+async function readBody(ctx: { req: NodeJS.ReadableStream }): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    for await (const chunk of ctx.req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array));
+    }
+    return Buffer.concat(chunks);
+}
 
 function validateWaypointFields(body: Record<string, unknown>): string | null {
     const { title, description, difficulty } = body as {
@@ -92,6 +109,14 @@ export function createWaypointRouter(): Router {
     });
 
     /**
+     * List the current user's completed waypoints
+     */
+    router.get('/completed', async (ctx) => {
+        const user = ctx.state.user as AuthUser;
+        ctx.body = { waypoints: getCompletions(user.playerId) };
+    });
+
+    /**
      * Complete a waypoint via the QR secret code
      */
     router.post('/complete', async (ctx) => {
@@ -135,6 +160,77 @@ export function createWaypointRouter(): Router {
         }
 
         ctx.body = { waypoint };
+    });
+
+    /**
+     * Upload an image hint for a waypoint. Body is the raw image bytes (any
+     * common format). The server resizes to 256x256, encodes as WebP at 80%
+     * quality, and stores it under data/waypoint_images/.
+     */
+    router.post('/:id/image', async (ctx) => {
+        const user = ctx.state.user as AuthUser;
+        const id = Number(ctx.params.id);
+        if (!Number.isInteger(id)) {
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldigt waypoint id' };
+            return;
+        }
+
+        if (!isWaypointCreator(id, user.playerId)) {
+            ctx.status = 403;
+            ctx.body = { error: 'Waypoint ikke fundet eller er ikke din' };
+            return;
+        }
+
+        let raw: Buffer;
+        try {
+            raw = await readBody(ctx);
+        } catch (err: unknown) {
+            ctx.status = 413;
+            ctx.body = { error: err instanceof Error ? err.message : 'Upload fejlede' };
+            return;
+        }
+        if (!raw.length) {
+            ctx.status = 400;
+            ctx.body = { error: 'Intet billede uploadet' };
+            return;
+        }
+
+        const filename = `${id}.webp`;
+        try {
+            await sharp(raw)
+                .resize(256, 256, { fit: 'cover' })
+                .webp({ quality: 80 })
+                .toFile(path.join(IMAGE_DIR, filename));
+        } catch (err) {
+            console.error('sharp failed for waypoint %d: %o', id, err);
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldigt billedformat' };
+            return;
+        }
+
+        setWaypointImage(id, user.playerId, filename);
+        ctx.status = 204;
+    });
+
+    /**
+     * Serve a waypoint's image hint. Anyone authenticated can view.
+     */
+    router.get('/:id/image', async (ctx) => {
+        const id = Number(ctx.params.id);
+        if (!Number.isInteger(id)) {
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldigt waypoint id' };
+            return;
+        }
+        const filepath = path.join(IMAGE_DIR, `${id}.webp`);
+        if (!existsSync(filepath)) {
+            ctx.status = 404;
+            ctx.body = { error: 'Billede ikke fundet' };
+            return;
+        }
+        ctx.type = 'image/webp';
+        ctx.body = createReadStream(filepath);
     });
 
     /**

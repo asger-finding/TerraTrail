@@ -17,7 +17,8 @@
     "msgpackr": "^1.11.3",
     "pbf": "^4.0.1",
     "poly-extrude": "^0.22.2",
-    "qr": "^0.5.4"
+    "qr": "^0.5.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.8.0",

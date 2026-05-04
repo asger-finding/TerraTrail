@@ -77,25 +77,39 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="DifficultyStars" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1604875658]
-custom_minimum_size = Vector2(360, 0)
+[node name="ImageRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=2071395956]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_constants/separation = 16
 alignment = 1
 
-[node name="Star1" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=407451626]
+[node name="ImageHint" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow" unique_id=620481931]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(256, 256)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DifficultyStars" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ImageRow" unique_id=1604875658]
+layout_mode = 2
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Star1" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow/DifficultyStars" unique_id=407451626]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Star2" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=2067386566]
+[node name="Star2" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow/DifficultyStars" unique_id=2067386566]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Star3" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=1503610803]
+[node name="Star3" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow/DifficultyStars" unique_id=1503610803]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=2071395956]
+[node name="MarginContainer5" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=703518292]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 

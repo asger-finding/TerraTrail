@@ -1,7 +1,8 @@
 extends Node3D
 
-const ROUTE_WIDTH := 3.0
-const ROUTE_Y_OFFSET := 0.5
+const ROUTE_WIDTH := 2.0
+const ROAD_Y := 1.5
+const ROUTE_Y_OFFSET := 1.0
 
 const MAT_PATH := preload("res://materials/Path.tres")
 const MAT_PATH_GLOW := preload("res://materials/PathGlow.tres")
@@ -62,18 +63,18 @@ func _build_route_mesh(points_flat: Array) -> void:
 	for i in point_count:
 		points[i] = Vector3(
 			float(points_flat[i * 3]),
-			float(points_flat[i * 3 + 1]) + ROUTE_Y_OFFSET,
+			ROAD_Y + ROUTE_Y_OFFSET,
 			float(points_flat[i * 3 + 2])
 		)
 
-	var glow_mesh := _build_ribbon(points, ROUTE_WIDTH * 2.0, -1)
+	var glow_mesh := _build_ribbon(points, ROUTE_WIDTH * 2.0, 0.0)
 	glow_mesh.surface_set_material(0, MAT_PATH_GLOW)
 	var glow_mi := MeshInstance3D.new()
 	glow_mi.mesh = glow_mesh
 	glow_mi.name = "route_glow"
 	add_child(glow_mi)
 
-	var route_mesh := _build_ribbon(points, ROUTE_WIDTH, 0.0)
+	var route_mesh := _build_ribbon(points, ROUTE_WIDTH, 0.05)
 	route_mesh.surface_set_material(0, MAT_PATH)
 	var mi := MeshInstance3D.new()
 	mi.mesh = route_mesh

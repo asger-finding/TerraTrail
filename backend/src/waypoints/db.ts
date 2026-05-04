@@ -87,6 +87,20 @@ const selectFavourites = db.prepare<
      ORDER BY wf.created_at DESC`
 );
 
+const selectCompletions = db.prepare<
+    WaypointRow & { is_completed: number; is_favourited: number },
+    [number, number]
+>(
+    `SELECT w.*,
+            1 AS is_completed,
+            (wf.id IS NOT NULL) AS is_favourited
+     FROM waypoints w
+     INNER JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
+     LEFT JOIN waypoint_favourites wf ON wf.waypoint_id = w.id AND wf.user_id = ?
+     WHERE w.active = 1
+     ORDER BY wc.completed_at DESC`
+);
+
 const updateStatement = db.prepare<WaypointRow, [string, string, number, number, number, number]>(
     `UPDATE waypoints SET title = ?, description = ?, difficulty = ?, updated = ?
      WHERE id = ? AND creator_id = ?
@@ -95,6 +109,12 @@ const updateStatement = db.prepare<WaypointRow, [string, string, number, number,
 
 const softDeleteStatement = db.prepare<{ id: number }, [number, number, number]>(
     `UPDATE waypoints SET active = 0, updated = ?
+     WHERE id = ? AND creator_id = ?
+     RETURNING id`
+);
+
+const updateImageStatement = db.prepare<{ id: number }, [string | null, number, number, number]>(
+    `UPDATE waypoints SET image_path = ?, updated = ?
      WHERE id = ? AND creator_id = ?
      RETURNING id`
 );
@@ -121,6 +141,10 @@ const deleteFavourite = db.prepare<void, [number, number]>(
 
 const selectSecretByIdAndCreator = db.prepare<{ qr_secret: string }, [number, number]>(
     'SELECT qr_secret FROM waypoints WHERE id = ? AND creator_id = ? AND active = 1'
+);
+
+const selectOwnership = db.prepare<{ id: number }, [number, number]>(
+    'SELECT id FROM waypoints WHERE id = ? AND creator_id = ? AND active = 1'
 );
 
 function toFormattedResponse(row: WaypointRow & { is_completed: number; is_favourited: number }): WaypointResponse {
@@ -164,6 +188,10 @@ export function getFavourites(userId: number): WaypointResponse[] {
     return selectFavourites.all(userId, userId).map(toFormattedResponse);
 }
 
+export function getCompletions(userId: number): WaypointResponse[] {
+    return selectCompletions.all(userId, userId).map(toFormattedResponse);
+}
+
 export function updateWaypoint(
     id: number, creatorId: number, title: string, description: string, difficulty: number
 ): WaypointRow | null {
@@ -174,6 +202,11 @@ export function updateWaypoint(
 export function deleteWaypoint(id: number, creatorId: number): boolean {
     const now = Date.now();
     return softDeleteStatement.get(now, id, creatorId) !== null;
+}
+
+export function setWaypointImage(id: number, creatorId: number, filename: string | null): boolean {
+    const now = Date.now();
+    return updateImageStatement.get(filename, now, id, creatorId) !== null;
 }
 
 export function completeWaypoint(userId: number, qrSecret: string): { waypoint: WaypointRow } | { error: string } {
@@ -203,4 +236,8 @@ export function toggleFavourite(userId: number, waypointId: number): boolean {
 
 export function getWaypointSecret(id: number, creatorId: number): string | null {
     return selectSecretByIdAndCreator.get(id, creatorId)?.qr_secret ?? null;
+}
+
+export function isWaypointCreator(id: number, creatorId: number): boolean {
+    return selectOwnership.get(id, creatorId) !== null;
 }

@@ -78,6 +78,19 @@ export interface AuthUser {
     tokenExp: number;
 }
 
+/** Achievement-data leveret af `GET /api/achievements`. Ikon hentes i klienten via `id`. */
+export interface AchievementResponse {
+    id: number;
+    title: string;
+    description: string;
+}
+
+/** Den aktuelle bruger leveret af `GET /api/me`. */
+export interface MeResponse {
+    username: string;
+    exp: number;
+}
+
 /** Waypoints som de står i SQLite. */
 export interface WaypointRow {
     id: number;

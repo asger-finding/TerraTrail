@@ -1,9 +1,9 @@
-[gd_scene format=3 uid="uid://brnaylessdfb0"]
+[gd_scene format=3 uid="uid://q2pcjfcou1td"]
 
-[ext_resource type="Script" uid="uid://bmmckshxlr517" path="res://scripts/FavouritesMenu.gd" id="1_ywnjt"]
-[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_pv606"]
-[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_1n1nj"]
-[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="3_lv16c"]
+[ext_resource type="Script" uid="uid://bl1xxbxlusmrg" path="res://scripts/UnlockedAchievementPopup.gd" id="1_xwedf"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="2_l3sps"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="3_sah2a"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="4_d2sbi"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1n1nj"]
 bg_color = Color(1, 1, 1, 1)
@@ -20,14 +20,14 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[node name="FavouritesPopup" type="Control" unique_id=266227988]
+[node name="UnlockedAchievementPopup" type="Control" unique_id=266227988]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ywnjt")
+script = ExtResource("1_xwedf")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=488437207]
 layout_mode = 1
@@ -37,25 +37,28 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -300.0
+offset_top = -89.5
 offset_right = 200.0
-offset_bottom = 182.0
+offset_bottom = 89.5
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1n1nj")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=438541496]
 layout_mode = 2
-theme_override_constants/separation = 16
 
 [node name="MarginContainer3" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=1013364497]
-custom_minimum_size = Vector2(0, 1)
+custom_minimum_size = Vector2(0, 13)
 layout_mode = 2
 
 [node name="HeaderRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=201995537]
 layout_mode = 2
 
-[node name="FavStatus" type="Label" parent="PanelContainer/VBoxContainer/HeaderRow" unique_id=28962890]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/HeaderRow" unique_id=680305285]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer/HeaderRow" unique_id=28962890]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -63,24 +66,29 @@ theme_override_colors/font_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.16862746)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
-theme_override_fonts/font = ExtResource("3_1n1nj")
-theme_override_font_sizes/font_size = 24
-text = "Favouritter"
-horizontal_alignment = 1
+theme_override_fonts/font = ExtResource("2_l3sps")
+theme_override_font_sizes/font_size = 15
+text = "WWWWWWWWWWWWW"
 vertical_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=984393005]
+[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=2071395956]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer" unique_id=1725797331]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="FavList" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer" unique_id=393883884]
+[node name="Description" type="Label" parent="PanelContainer/VBoxContainer" unique_id=22413944]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_l3sps")
+text = "Placeholder description"
+autowrap_mode = 3
+
+[node name="MarginContainer4" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=849390148]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
 
 [node name="CloseButton" type="Button" parent="." unique_id=1786609130]
 unique_name_in_owner = true
@@ -90,12 +98,12 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -188.0
-offset_top = -287.0
-offset_right = -150.0
-offset_bottom = -254.0
+offset_left = -195.0
+offset_top = -82.0
+offset_right = -157.0
+offset_bottom = -49.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_pv606")
+theme = ExtResource("3_sah2a")
 text = "  x  "
-script = ExtResource("3_lv16c")
+script = ExtResource("4_d2sbi")

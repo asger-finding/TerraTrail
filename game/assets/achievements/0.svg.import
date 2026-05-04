@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dgfeecixh7j8p"
-path="res://.godot/imported/Background.webp-3e1ea9b2ea09e86df40b9881851dd74a.ctex"
+uid="uid://cmac57a8nusft"
+path="res://.godot/imported/0.svg-dfe3a1f3ff446b8f6879b4795854a09d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/Background.webp"
-dest_files=["res://.godot/imported/Background.webp-3e1ea9b2ea09e86df40b9881851dd74a.ctex"]
+source_file="res://assets/achievements/0.svg"
+dest_files=["res://.godot/imported/0.svg-dfe3a1f3ff446b8f6879b4795854a09d.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

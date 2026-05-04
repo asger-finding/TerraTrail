@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://cw5tx8a3g7nab"]
+
+[ext_resource type="Script" path="res://scripts/WaypointTile.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tile"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="WaypointTile" type="PanelContainer"]
+custom_minimum_size = Vector2(80, 80)
+clip_children = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tile")
+script = ExtResource("1_script")
+
+[node name="Image" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5

@@ -62,5 +62,6 @@ func _on_row_pressed(wp: Dictionary) -> void:
 	visible = false
 	popup.open(wp)
 
-func _on_popup_closed() -> void:
-	visible = true
+func _on_popup_closed(via_start: bool) -> void:
+	if not via_start:
+		visible = true

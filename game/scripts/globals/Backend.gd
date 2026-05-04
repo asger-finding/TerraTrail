@@ -31,39 +31,38 @@ func _watch_unauth(http: HTTPRequest) -> void:
 			Router.goto("splash")
 	)
 
-func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
-	var url := "%s/api/tiles?bbox=%s&zoom=%d" % [BASE_URL, bbox, zoom]
+func _authed_get(path: String) -> HTTPRequest:
 	var http := HTTPRequest.new()
 	add_child(http)
 	_watch_unauth(http)
-	http.request(url, auth_headers())
+	http.request(BASE_URL + path, auth_headers())
 	return http
+
+func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
+	return _authed_get("/api/tiles?bbox=%s&zoom=%d" % [bbox, zoom])
 
 func request_tile(x: int, y: int, z: int, origin_lon: float, origin_lat: float) -> HTTPRequest:
-	var url := "%s/api/tile?x=%d&y=%d&z=%d&originLon=%s&originLat=%s" % [
-		BASE_URL, x, y, z, str(origin_lon), str(origin_lat)
-	]
-	var http := HTTPRequest.new()
-	add_child(http)
-	_watch_unauth(http)
-	http.request(url, auth_headers())
-	return http
+	return _authed_get("/api/tile?x=%d&y=%d&z=%d&originLon=%s&originLat=%s" % [
+		x, y, z, str(origin_lon), str(origin_lat)
+	])
 
 func request_waypoints(bbox: String) -> HTTPRequest:
-	var url := "%s/api/waypoints?bbox=%s" % [BASE_URL, bbox]
-	var http := HTTPRequest.new()
-	add_child(http)
-	_watch_unauth(http)
-	http.request(url, auth_headers())
-	return http
+	return _authed_get("/api/waypoints?bbox=%s" % bbox)
 
 func request_favourites() -> HTTPRequest:
-	var url := "%s/api/waypoints/favourites" % BASE_URL
-	var http := HTTPRequest.new()
-	add_child(http)
-	_watch_unauth(http)
-	http.request(url, auth_headers())
-	return http
+	return _authed_get("/api/waypoints/favourites")
+
+func request_completed_waypoints() -> HTTPRequest:
+	return _authed_get("/api/waypoints/completed")
+
+func request_achievements() -> HTTPRequest:
+	return _authed_get("/api/achievements")
+
+func request_me() -> HTTPRequest:
+	return _authed_get("/api/me")
+
+func request_waypoint_image(waypoint_id: int) -> HTTPRequest:
+	return _authed_get("/api/waypoints/%d/image" % waypoint_id)
 
 func complete_waypoint(qr_secret: String) -> Dictionary:
 	var url := BASE_URL + "/api/waypoints/complete"
@@ -75,14 +74,9 @@ func toggle_favourite(waypoint_id: int) -> Dictionary:
 	return await _post(url, "", auth_headers())
 
 func request_route(from: String, to: String, origin_lon: float, origin_lat: float) -> HTTPRequest:
-	var url := "%s/api/route?from=%s&to=%s&origin=%s,%s" % [
-		BASE_URL, from, to, str(origin_lon), str(origin_lat)
-	]
-	var http := HTTPRequest.new()
-	add_child(http)
-	_watch_unauth(http)
-	http.request(url, auth_headers())
-	return http
+	return _authed_get("/api/route?from=%s&to=%s&origin=%s,%s" % [
+		from, to, str(origin_lon), str(origin_lat)
+	])
 
 func _post(url: String, body: String, headers: PackedStringArray = PackedStringArray()) -> Dictionary:
 	var http := HTTPRequest.new()

@@ -1,6 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://7nm0mfpak3nq"]
 
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="1_04ric"]
+[ext_resource type="Texture2D" uid="uid://lquff6bp0loy" path="res://assets/ui/xp_progress_bar.png" id="2_bhva1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uvydk"]
 bg_color = Color(0.62708896, 0.6346182, 0.68677896, 1)
@@ -130,6 +131,16 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ft83e"]
+bg_color = Color(0, 0, 0, 0.19607843)
+shadow_color = Color(0, 0, 0, 0.14117648)
+shadow_size = 5
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4w5t0"]
+texture = ExtResource("2_bhva1")
+axis_stretch_horizontal = 1
+
 [resource]
 Button/colors/font_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
 Button/colors/font_disabled_color = Color(0, 0, 0, 1)
@@ -174,3 +185,10 @@ LineEdit/icons/clear = SubResource("DPITexture_04ric")
 LineEdit/styles/focus = SubResource("StyleBoxFlat_4w5t0")
 LineEdit/styles/normal = SubResource("StyleBoxFlat_fvp2u")
 LineEdit/styles/read_only = SubResource("StyleBoxFlat_n8uxg")
+ProgressBar/colors/font_color = Color(0.95, 0.95, 0.95, 1)
+ProgressBar/colors/font_outline_color = Color(0, 0, 0, 1)
+ProgressBar/constants/outline_size = 7
+ProgressBar/font_sizes/font_size = 20
+ProgressBar/fonts/font = ExtResource("1_04ric")
+ProgressBar/styles/background = SubResource("StyleBoxFlat_ft83e")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_4w5t0")

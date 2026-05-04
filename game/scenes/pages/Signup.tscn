@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cmmn6u7hi1vyg"]
 
-[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="1_s2ecu"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="1_s2ecu"]
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="2_font"]
 [ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_fvp2u"]
 [ext_resource type="Texture2D" uid="uid://wi5uu0msrk8h" path="res://assets/ui/checkbox.png" id="3_chk"]
