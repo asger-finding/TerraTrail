@@ -1,6 +1,8 @@
 import Router from '@koa/router';
 import { createUser, authenticateUser } from '../users/db.js';
 import { signToken } from '../auth/jwt.js';
+import { revokeToken } from '../auth/revoked.js';
+import type { AuthUser } from '../types/index.js';
 
 const USERNAME_RE = /^[A-Za-z0-9_-]{1,23}$/;
 
@@ -61,6 +63,12 @@ export function createAuthRouter(): Router {
 
         const token = await signToken(player.playerId, player.username);
         ctx.body = { token, player };
+    });
+
+    router.post('/logout', async (ctx) => {
+        const user = ctx.state.user as AuthUser;
+        revokeToken(user.jti, user.tokenExp);
+        ctx.status = 204;
     });
 
     return router;

@@ -74,6 +74,8 @@ export interface PlayerDetails {
 export interface AuthUser {
     playerId: number;
     username: string;
+    jti: string;
+    tokenExp: number;
 }
 
 /** Waypoints som de står i SQLite. */

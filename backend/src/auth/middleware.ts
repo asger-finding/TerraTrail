@@ -1,8 +1,9 @@
 import type { Middleware } from 'koa';
 import { verifyToken } from './jwt.js';
+import { isRevoked } from './revoked.js';
 
 export const authMiddleware: Middleware = async (ctx, next) => {
-    if (!ctx.path.startsWith('/api/') || ctx.path.startsWith('/api/auth/')) {
+    if (!ctx.path.startsWith('/api/') || ctx.path === '/api/auth/login' || ctx.path === '/api/auth/signup') {
         return next();
     }
 
@@ -16,7 +17,17 @@ export const authMiddleware: Middleware = async (ctx, next) => {
     try {
         const token = header.slice(7);
         const payload = await verifyToken(token);
-        ctx.state.user = { playerId: Number(payload.sub), username: payload.username };
+        if (isRevoked(payload.jti)) {
+            ctx.status = 401;
+            ctx.body = { error: 'Token er tilbagekaldt' };
+            return;
+        }
+        ctx.state.user = {
+            playerId: Number(payload.sub),
+            username: payload.username,
+            jti: payload.jti,
+            tokenExp: payload.exp
+        };
         return next();
     } catch {
         ctx.status = 401;

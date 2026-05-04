@@ -7,13 +7,19 @@ export async function signToken(playerId: number, username: string): Promise<str
     return new SignJWT({ username })
         .setProtectedHeader({ alg: 'ES256' })
         .setSubject(String(playerId))
+        .setJti(crypto.randomUUID())
         .setIssuedAt()
         .setExpirationTime(config.jwtExpiration)
         .sign(privateKey);
 }
 
-export async function verifyToken(token: string): Promise<{ sub: string; username: string }> {
+export async function verifyToken(token: string): Promise<{ sub: string; username: string; jti: string; exp: number }> {
     const { publicKey } = await getKeys();
     const { payload } = await jwtVerify(token, publicKey, { algorithms: ['ES256'] });
-    return { sub: payload.sub as string, username: payload.username as string };
+    return {
+        sub: payload.sub as string,
+        username: payload.username as string,
+        jti: payload.jti as string,
+        exp: payload.exp as number
+    };
 }
