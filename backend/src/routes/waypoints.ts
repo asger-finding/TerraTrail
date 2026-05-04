@@ -18,7 +18,7 @@ function validateWaypointFields(body: Record<string, unknown>): string | null {
     };
 
     if (!title || !description || difficulty == null) return 'Felterne titel, beskrivelse og sværhedsgrad er påkrævet';
-    if (title.length > 50) return 'Et waypoints titel må maks. være 50 tegn';
+    if (title.length > 13) return 'Et waypoints titel må maks. være 13 tegn';
     if (description.length > 1_000) return 'Et waypoints beskrivelse må maks. være 1 000 tegn';
     if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 3) return 'Et waypoints sværhedsgrad skal være 1, 2 eller 3';
     return null;

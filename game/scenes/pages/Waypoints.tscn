@@ -30,7 +30,6 @@ var _tile_manager: Node
 
 func _ready() -> void:
 	await get_tree().process_frame
-	_set_navbar_visible(false)
 	_tile_manager = get_tree().get_first_node_in_group(\"tile_manager\")
 	if _tile_manager:
 		_tile_manager.tile_loaded.connect(_on_tile_loaded)
@@ -45,12 +44,6 @@ func _on_tile_loaded(_coord: Vector3i) -> void:
 
 func _hide_loading() -> void:
 	loading_overlay.visible = false
-	_set_navbar_visible(true)
-
-func _set_navbar_visible(v: bool) -> void:
-	var navbar := get_tree().get_first_node_in_group(\"navbar\")
-	if navbar:
-		navbar.visible = v
 
 func _update_loading_label() -> void:
 	if not Coordinates.is_origin_set():
@@ -382,9 +375,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -118.125
-offset_top = -291.75
+offset_top = -410.0
 offset_right = 118.125
-offset_bottom = -238.25
+offset_bottom = -356.5
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 0, 0, 1)
@@ -392,8 +385,8 @@ color = Color(1, 0, 0, 1)
 [node name="NoGPSErrorLabel" type="Label" parent="NoGPSError" unique_id=343144023]
 layout_mode = 0
 offset_left = 4.0
-offset_right = 207.0
-offset_bottom = 23.0
+offset_right = 233.0
+offset_bottom = 51.0
 text = "MISLYKKEDES AT LAVE
 GPS-FORBINDELSE"
 label_settings = SubResource("LabelSettings_ior6d")
