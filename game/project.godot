@@ -13,6 +13,7 @@ config_version=5
 config/name="TerraTrail"
 run/main_scene="uid://cesvfjccpdq8u"
 config/features=PackedStringArray("4.6", "Mobile")
+boot_splash/image="uid://bwc4sk70kop1k"
 config/icon="res://icon.svg"
 
 [autoload]
