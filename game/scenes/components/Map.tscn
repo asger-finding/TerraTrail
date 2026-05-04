@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://d0n4y384nrkpa" path="res://scripts/WaypointManager.gd" id="4_sye5u"]
 [ext_resource type="Script" uid="uid://ls5ro4yl1p1s" path="res://scripts/Player.gd" id="5_q5v80"]
 [ext_resource type="Script" uid="uid://bag0v5muy5gc6" path="res://scripts/MapInput.gd" id="6_mapin"]
+[ext_resource type="PackedScene" uid="uid://bdqobqykuagwq" path="res://assets/3d/PlayerMesh.glb" id="10_kkxfm"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sasra"]
 panorama = ExtResource("1_juerm")
@@ -34,10 +35,6 @@ glow_intensity = 3.91
 glow_strength = 0.7
 glow_bloom = 0.45
 glow_blend_mode = 0
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_q5v80"]
-radius = 5.0
-height = 15.0
 
 [node name="Map" type="Node3D" unique_id=1673046150]
 
@@ -95,6 +92,5 @@ script = ExtResource("4_q6fnx")
 script = ExtResource("5_q5v80")
 compass_offset_deg = -160.0
 
-[node name="PlayerMesh" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/Player" unique_id=1389168492]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
-mesh = SubResource("CapsuleMesh_q5v80")
+[node name="PlayerMesh" parent="SubViewportContainer/SubViewport/Player" unique_id=1292329548 instance=ExtResource("10_kkxfm")]
+transform = Transform3D(0, 0, 14, 0, 14, 0, -14, 0, 0, 0, 0, 0)

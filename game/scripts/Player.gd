@@ -6,12 +6,22 @@ const MOVE_SPEED: float = 0.005   # degrees pr. sekund (WASD)
 const MOVE_THRESHOLD: float = 10.0  # meter før position_changed emittes
 const COMPASS_LERP_RATE: float = 8.0
 const GPS_TIMEOUT: float = 10.0
+const HEAD_TURN_MAX_RAD: float = deg_to_rad(60.0)
+const BODY_TURN_TRIGGER_RAD: float = HEAD_TURN_MAX_RAD + deg_to_rad(20.0)
+const BODY_TURN_RELEASE_RAD: float = deg_to_rad(2.0)
+const BODY_LERP_RATE: float = 6.0
+const WALK_TIMEOUT: float = 1.5  # sek. uden bevægelse før vi falder tilbage til idle
+const ANIM_FADE: float = 0.2
+const HEAD_BONE_NAME: String = "neck"
+const ANIM_WALK: String = "walk"
+const ANIM_IDLE: String = "idle"
 
 @export var compass_offset_deg: float = 0.0
 
 var lon: float = 12.543
 var lat: float = 55.764
 var heading: float = 0.0  # grader, 0 = nord
+var body_yaw: float = 0.0  # rotation.y target, kan halte efter heading
 
 var gps_wait_active: bool = false
 var gps_wait_elapsed: float = 0.0
@@ -19,9 +29,21 @@ var gps_fix_missing: bool = false
 
 var _last_emitted_pos: Vector3 = Vector3.ZERO
 var _use_sensors: bool = false
+var _anim_player: AnimationPlayer
+var _skeleton: Skeleton3D
+var _head_bone_idx: int = -1
+var _time_since_move: float = INF
+var _current_anim: String = ""
+var _body_turning: bool = false
 
 func _ready() -> void:
 	add_to_group("player")
+	_anim_player = find_child("AnimationPlayer", true, false)
+	_skeleton = find_child("Skeleton3D", true, false)
+	if _skeleton:
+		_head_bone_idx = _skeleton.find_bone(HEAD_BONE_NAME)
+	body_yaw = deg_to_rad(-heading)
+	_play_anim(ANIM_IDLE)
 	_use_sensors = OS.get_name() == "Android"
 	if not _use_sensors:
 		Coordinates.set_origin(lon, lat)
@@ -65,6 +87,7 @@ func _on_gps_update(data: Dictionary) -> void:
 	var new_pos: Vector3 = Coordinates.lon_lat_to_world(lon, lat)
 	if new_pos.distance_to(_last_emitted_pos) > MOVE_THRESHOLD:
 		_last_emitted_pos = new_pos
+		_time_since_move = 0.0
 		position_changed.emit(lon, lat)
 
 func _process(delta: float) -> void:
@@ -97,9 +120,12 @@ func _process(delta: float) -> void:
 
 		if moved and position.distance_to(_last_emitted_pos) > MOVE_THRESHOLD:
 			_last_emitted_pos = position
+			_time_since_move = 0.0
 			position_changed.emit(lon, lat)
 
-	_update_transform()
+	_time_since_move += delta
+	_update_anim_state()
+	_update_transform(delta)
 
 # Kompas via Android SensorManager.getRotationMatrix + getOrientation:
 # https://developer.android.com/develop/sensors-and-location/sensors/sensors_position
@@ -124,10 +150,37 @@ func _compass_heading() -> float:
 
 	return atan2(h.y, m.y) + deg_to_rad(compass_offset_deg)
 
-func _update_transform() -> void:
+func _update_transform(delta: float = 0.0) -> void:
 	position = Coordinates.lon_lat_to_world(lon, lat)
-	rotation.y = deg_to_rad(-heading)
+	var compass_yaw: float = deg_to_rad(-heading)
+	var yaw_delta: float = wrapf(compass_yaw - body_yaw, -PI, PI)
+
+	if not _body_turning and absf(yaw_delta) > BODY_TURN_TRIGGER_RAD:
+		_body_turning = true
+
+	if _body_turning:
+		body_yaw = lerp_angle(body_yaw, compass_yaw, BODY_LERP_RATE * delta)
+		yaw_delta = wrapf(compass_yaw - body_yaw, -PI, PI)
+		if absf(yaw_delta) < BODY_TURN_RELEASE_RAD:
+			_body_turning = false
+
+	yaw_delta = clampf(yaw_delta, -HEAD_TURN_MAX_RAD, HEAD_TURN_MAX_RAD)
+	rotation.y = body_yaw
+	if _skeleton and _head_bone_idx != -1:
+		_skeleton.set_bone_pose_rotation(_head_bone_idx, Quaternion(Vector3.UP, yaw_delta))
 	Coordinates.player_lon = lon
 	Coordinates.player_lat = lat
 	Coordinates.player_world_pos = position
-	Coordinates.player_heading_rad = deg_to_rad(-heading)
+	Coordinates.player_heading_rad = compass_yaw
+
+func _update_anim_state() -> void:
+	var want := ANIM_WALK if _time_since_move < WALK_TIMEOUT else ANIM_IDLE
+	_play_anim(want)
+
+func _play_anim(name: String) -> void:
+	if name == _current_anim:
+		return
+	if _anim_player == null or not _anim_player.has_animation(name):
+		return
+	_anim_player.play(name, ANIM_FADE)
+	_current_anim = name
