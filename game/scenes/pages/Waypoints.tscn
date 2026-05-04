@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://do6726q06gwx2"]
 
 [ext_resource type="Texture2D" uid="uid://dpn7atx12h050" path="res://assets/ui/Compass.svg" id="1_51nhm"]
+[ext_resource type="Texture2D" uid="uid://cex4ei5ce60fc" path="res://assets/ui/favourites_active.webp" id="2_4gqi3"]
 [ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/Background.webp" id="2_6q7fh"]
 [ext_resource type="Texture2D" uid="uid://cvy5dbnt7uapf" path="res://assets/ui/Spinner.svg" id="2_spnr"]
 [ext_resource type="Material" uid="uid://cgtkn58p57etv" path="res://materials/DropShadow.tres" id="3_eb568"]
@@ -9,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://crqplpba4cehd" path="res://assets/ui/perspective_grid.png" id="5_ud44u"]
 [ext_resource type="Material" uid="uid://ck68wmlpan5st" path="res://materials/SpinnerShadow.tres" id="6_spnsh"]
 [ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="9_ior6d"]
+[ext_resource type="PackedScene" uid="uid://brnaylessdfb0" path="res://scenes/components/FavouritesPopup.tscn" id="10_rsvsc"]
 
 [sub_resource type="GDScript" id="GDScript_kfrd5"]
 script/source = "extends Control
@@ -24,6 +26,7 @@ const SPINNER_SPEED: float = 6.0
 @onready var back_button: Button = %BackToPlayerButton
 @onready var stop_route_button: Button = %StopRouteButton
 @onready var scan_button: Button = %ScanButton
+@onready var favourites_button: TextureButton = %FavouritesButton
 @onready var no_gps_error: ColorRect = %NoGPSError
 
 var _tile_manager: Node
@@ -112,6 +115,11 @@ func _on_stop_route_pressed() -> void:
 
 func _on_scan_pressed() -> void:
 	Router.push(\"scanner\")
+
+func _on_favourites_button_pressed() -> void:
+	var menu := get_tree().get_first_node_in_group(\"favourites_menu\")
+	if menu:
+		menu.open()
 "
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_enqju"]
@@ -193,6 +201,20 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = SubResource("GDScript_kfrd5")
+
+[node name="FavouritesButton" type="TextureButton" parent="." unique_id=395238112]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -64.0
+offset_bottom = 64.0
+grow_horizontal = 0
+texture_normal = ExtResource("2_4gqi3")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="HUDBottomRight" type="VBoxContainer" parent="." unique_id=1815934075]
 layout_mode = 1
@@ -363,7 +385,10 @@ label_settings = SubResource("LabelSettings_eb568")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="WaypointPopup" parent="." unique_id=266227988 instance=ExtResource("9_ior6d")]
+[node name="FavouritesPopup" parent="." unique_id=266227988 instance=ExtResource("10_rsvsc")]
+layout_mode = 1
+
+[node name="WaypointPopup" parent="." unique_id=428752325 instance=ExtResource("9_ior6d")]
 layout_mode = 1
 
 [node name="NoGPSError" type="ColorRect" parent="." unique_id=1122533526]
@@ -393,6 +418,7 @@ label_settings = SubResource("LabelSettings_ior6d")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[connection signal="pressed" from="FavouritesButton" to="." method="_on_favourites_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/CompassButton" to="." method="_on_compass_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/TopDownButton" to="." method="_on_top_down_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/BackToPlayerButton" to="." method="_on_back_button_pressed"]

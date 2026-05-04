@@ -16,5 +16,4 @@ func _ready() -> void:
 	add_theme_stylebox_override("pressed", pressed_style)
 
 func _process(_delta: float) -> void:
-	var pressed := get_draw_mode() == DRAW_PRESSED
-	position.y = _base_y + (press_offset if pressed else 0.0)
+	position.y = _base_y + (press_offset if get_draw_mode() == DRAW_PRESSED else 0.0)

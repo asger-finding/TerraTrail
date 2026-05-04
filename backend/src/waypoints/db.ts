@@ -73,6 +73,20 @@ const selectById = db.prepare<
      WHERE w.id = ? AND w.active = 1`
 );
 
+const selectFavourites = db.prepare<
+    WaypointRow & { is_completed: number; is_favourited: number },
+    [number, number]
+>(
+    `SELECT w.*,
+            (wc.id IS NOT NULL) AS is_completed,
+            1 AS is_favourited
+     FROM waypoints w
+     INNER JOIN waypoint_favourites wf ON wf.waypoint_id = w.id AND wf.user_id = ?
+     LEFT JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
+     WHERE w.active = 1
+     ORDER BY wf.created_at DESC`
+);
+
 const updateStatement = db.prepare<WaypointRow, [string, string, number, number, number, number]>(
     `UPDATE waypoints SET title = ?, description = ?, difficulty = ?, updated = ?
      WHERE id = ? AND creator_id = ?
@@ -144,6 +158,10 @@ export function getWaypointsInBBox(
 export function getWaypoint(id: number, userId: number): WaypointResponse | null {
     const row = selectById.get(userId, userId, id);
     return row ? toFormattedResponse(row) : null;
+}
+
+export function getFavourites(userId: number): WaypointResponse[] {
+    return selectFavourites.all(userId, userId).map(toFormattedResponse);
 }
 
 export function updateWaypoint(

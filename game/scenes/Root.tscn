@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://5dk0m1fish43" path="res://scripts/Root.gd" id="1_kqog5"]
 [ext_resource type="PackedScene" uid="uid://kdkee8ftds16" path="res://scenes/components/Map.tscn" id="2_knkkn"]
-[ext_resource type="PackedScene" uid="uid://navbar_scene" path="res://scenes/components/Navbar.tscn" id="3_navbar"]
+[ext_resource type="PackedScene" uid="uid://deoox4liuuec3" path="res://scenes/components/Navbar.tscn" id="3_navbar"]
 
 [node name="Root" type="Node" unique_id=1296303206]
 script = ExtResource("1_kqog5")

@@ -4,6 +4,7 @@
 [ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_pv606"]
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_1n1nj"]
 [ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="3_lv16c"]
+[ext_resource type="Texture2D" uid="uid://bg51s5c6ftrbe" path="res://assets/ui/favourites.webp" id="5_7pp2m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1n1nj"]
 bg_color = Color(1, 1, 1, 1)
@@ -76,21 +77,21 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 
-[node name="Stars" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1604875658]
+[node name="DifficultyStars" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1604875658]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Star1" type="TextureRect" parent="PanelContainer/VBoxContainer/Stars" unique_id=407451626]
+[node name="Star1" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=407451626]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Star2" type="TextureRect" parent="PanelContainer/VBoxContainer/Stars" unique_id=2067386566]
+[node name="Star2" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=2067386566]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
-[node name="Star3" type="TextureRect" parent="PanelContainer/VBoxContainer/Stars" unique_id=1503610803]
+[node name="Star3" type="TextureRect" parent="PanelContainer/VBoxContainer/DifficultyStars" unique_id=1503610803]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
@@ -103,6 +104,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 4
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_1n1nj")
 text = "Placeholder description"
@@ -116,29 +118,45 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_1n1nj")
 text = "Gennemført"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1403227285]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1511879797]
 layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
+
+[node name="StartButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2" unique_id=937101251]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme = ExtResource("2_pv606")
+text = "Start"
+script = ExtResource("3_lv16c")
+
+[node name="FavouriteButton" type="TextureButton" parent="PanelContainer/VBoxContainer/HBoxContainer2" unique_id=1256309273]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture_normal = ExtResource("5_7pp2m")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="MarginContainer4" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=849390148]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
 
 [node name="CloseButton" type="Button" parent="." unique_id=1786609130]
 unique_name_in_owner = true
-layout_mode = 0
-offset_left = 28.0
-offset_top = 193.0
-offset_right = 66.0
-offset_bottom = 226.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -188.0
+offset_top = -287.0
+offset_right = -150.0
+offset_bottom = -254.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("2_pv606")
 text = "  x  "
-script = ExtResource("3_lv16c")
-
-[node name="StartButton" type="Button" parent="." unique_id=937101251]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 0)
-layout_mode = 0
-offset_left = 96.0
-offset_top = 612.0
-offset_right = 336.0
-offset_bottom = 645.0
-theme = ExtResource("2_pv606")
-text = "Start"
 script = ExtResource("3_lv16c")

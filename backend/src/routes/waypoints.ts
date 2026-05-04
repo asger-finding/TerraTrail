@@ -5,6 +5,7 @@ import {
     createWaypoint,
     getWaypointsInBBox,
     getWaypoint,
+    getFavourites,
     updateWaypoint,
     deleteWaypoint,
     completeWaypoint,
@@ -80,6 +81,14 @@ export function createWaypointRouter(): Router {
         const [minLon, minLat, maxLon, maxLat] = parts;
         const waypoints = getWaypointsInBBox(minLon, minLat, maxLon, maxLat, user.playerId);
         ctx.body = { waypoints };
+    });
+
+    /**
+     * List the current user's favourited waypoints
+     */
+    router.get('/favourites', async (ctx) => {
+        const user = ctx.state.user as AuthUser;
+        ctx.body = { waypoints: getFavourites(user.playerId) };
     });
 
     /**

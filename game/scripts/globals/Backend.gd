@@ -57,10 +57,22 @@ func request_waypoints(bbox: String) -> HTTPRequest:
 	http.request(url, auth_headers())
 	return http
 
+func request_favourites() -> HTTPRequest:
+	var url := "%s/api/waypoints/favourites" % BASE_URL
+	var http := HTTPRequest.new()
+	add_child(http)
+	_watch_unauth(http)
+	http.request(url, auth_headers())
+	return http
+
 func complete_waypoint(qr_secret: String) -> Dictionary:
 	var url := BASE_URL + "/api/waypoints/complete"
 	var body := JSON.stringify({"qrSecret": qr_secret})
 	return await _post(url, body, auth_headers())
+
+func toggle_favourite(waypoint_id: int) -> Dictionary:
+	var url := "%s/api/waypoints/%d/favourite" % [BASE_URL, waypoint_id]
+	return await _post(url, "", auth_headers())
 
 func request_route(from: String, to: String, origin_lon: float, origin_lat: float) -> HTTPRequest:
 	var url := "%s/api/route?from=%s&to=%s&origin=%s,%s" % [
