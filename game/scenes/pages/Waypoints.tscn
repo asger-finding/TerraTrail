@@ -4,7 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://cex4ei5ce60fc" path="res://assets/ui/favourites_active.webp" id="2_4gqi3"]
 [ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="2_6q7fh"]
 [ext_resource type="Texture2D" uid="uid://cvy5dbnt7uapf" path="res://assets/ui/Spinner.svg" id="2_spnr"]
-[ext_resource type="Material" uid="uid://cgtkn58p57etv" path="res://materials/DropShadow.tres" id="3_eb568"]
 [ext_resource type="Texture2D" uid="uid://enfr0lbfgs80" path="res://assets/ui/ortho_grid.png" id="4_enqju"]
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="4_nbrd0"]
 [ext_resource type="Texture2D" uid="uid://crqplpba4cehd" path="res://assets/ui/perspective_grid.png" id="5_ud44u"]
@@ -205,27 +204,6 @@ grow_vertical = 2
 mouse_filter = 2
 script = SubResource("GDScript_kfrd5")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1255837981]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -88.0
-offset_bottom = 88.0
-grow_horizontal = 0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
-
-[node name="FavouritesButton" type="TextureButton" parent="MarginContainer" unique_id=395238112]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-texture_normal = ExtResource("2_4gqi3")
-ignore_texture_size = true
-stretch_mode = 5
-
 [node name="HUDBottomRight" type="VBoxContainer" parent="." unique_id=1815934075]
 layout_mode = 1
 anchors_preset = 3
@@ -240,20 +218,23 @@ offset_bottom = -16.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="CompassButton" type="TextureButton" parent="HUDBottomRight" unique_id=1369260191]
 unique_name_in_owner = true
-material = ExtResource("3_eb568")
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 texture_normal = ExtResource("1_51nhm")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="MarginContainer" type="MarginContainer" parent="HUDBottomRight" unique_id=314134435]
-custom_minimum_size = Vector2(0, 2)
+[node name="FavouritesButton" type="TextureButton" parent="HUDBottomRight" unique_id=395238112]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
+texture_normal = ExtResource("2_4gqi3")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="TopDownButton" type="Button" parent="HUDBottomRight" unique_id=1824535756]
 custom_minimum_size = Vector2(80, 76)
@@ -287,10 +268,6 @@ grow_vertical = 2
 texture = ExtResource("5_ud44u")
 expand_mode = 1
 
-[node name="MarginContainer2" type="MarginContainer" parent="HUDBottomRight" unique_id=91883004]
-custom_minimum_size = Vector2(0, 2)
-layout_mode = 2
-
 [node name="BackToPlayerButton" type="Button" parent="HUDBottomRight" unique_id=1109496719]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 76)
@@ -300,8 +277,8 @@ text = "⊕"
 icon_alignment = 1
 
 [node name="MarginContainer3" type="MarginContainer" parent="HUDBottomRight" unique_id=574023803]
-custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+theme_override_constants/margin_top = 105
 
 [node name="StopRouteButton" type="Button" parent="." unique_id=2034812711]
 unique_name_in_owner = true
@@ -450,8 +427,8 @@ label_settings = SubResource("LabelSettings_ior6d")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[connection signal="pressed" from="MarginContainer/FavouritesButton" to="." method="_on_favourites_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/CompassButton" to="." method="_on_compass_button_pressed"]
+[connection signal="pressed" from="HUDBottomRight/FavouritesButton" to="." method="_on_favourites_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/TopDownButton" to="." method="_on_top_down_button_pressed"]
 [connection signal="pressed" from="HUDBottomRight/BackToPlayerButton" to="." method="_on_back_button_pressed"]
 [connection signal="pressed" from="StopRouteButton" to="." method="_on_stop_route_pressed"]

@@ -133,6 +133,7 @@ func _request_tile(coord: Vector3i) -> void:
 		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 			http.queue_free()
 			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+				push_error("/api/tile failed: coord=%s result=%d code=%d" % [coord, result, code])
 				_pending_tiles.erase(coord)
 				return
 			_cache_put(coord, body)

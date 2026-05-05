@@ -33,8 +33,11 @@ func _on_tile_loaded(coord: Vector3i) -> void:
 
 	var http := Backend.request_waypoints(bbox)
 	http.request_completed.connect(
-		func(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 			http.queue_free()
+			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+				push_error("waypoint fetch failed: result=%d code=%d" % [result, code])
+				return
 			var json := JSON.new()
 			json.parse(body.get_string_from_utf8())
 			_spawn_waypoints(coord, json.data["waypoints"])

@@ -46,7 +46,6 @@ const selectLeaderboard = db.prepare<LeaderboardEntry, [number]>(`
         SELECT id, username, exp,
                ROW_NUMBER() OVER (ORDER BY exp DESC, id ASC) AS rank
         FROM users
-        WHERE exp > 0
     )
     SELECT rank, username, exp FROM ranked WHERE rank <= 10
     UNION

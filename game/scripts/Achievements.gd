@@ -28,8 +28,11 @@ func _load_me() -> void:
 	var http := Backend.request_me()
 	http.request_completed.connect(_on_me_response.bind(http))
 
-func _on_me_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_me_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		push_error("/api/me failed: result=%d code=%d" % [result, code])
+		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
 	var data: Dictionary = json.data
@@ -48,8 +51,11 @@ func _load_achievements() -> void:
 	var http := Backend.request_achievements()
 	http.request_completed.connect(_on_achievements_response.bind(http))
 
-func _on_achievements_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_achievements_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		push_error("/api/achievements failed: result=%d code=%d" % [result, code])
+		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
 	for entry: Dictionary in json.data["achievements"]:
@@ -59,8 +65,11 @@ func _load_completed() -> void:
 	var http := Backend.request_completed_waypoints()
 	http.request_completed.connect(_on_completed_response.bind(http))
 
-func _on_completed_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_completed_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		push_error("/api/waypoints/completed failed: result=%d code=%d" % [result, code])
+		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
 	for wp: Dictionary in json.data["waypoints"]:
@@ -88,8 +97,11 @@ func _load_leaderboard() -> void:
 	var http := Backend.request_leaderboard()
 	http.request_completed.connect(_on_leaderboard_response.bind(http))
 
-func _on_leaderboard_response(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+func _on_leaderboard_response(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
 	http.queue_free()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+		push_error("/api/leaderboard failed: result=%d code=%d" % [result, code])
+		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
 	for entry: Dictionary in json.data["entries"]:
