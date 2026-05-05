@@ -68,10 +68,19 @@ func request_waypoint_image(waypoint_id: int) -> HTTPRequest:
 func request_my_waypoints() -> HTTPRequest:
 	return _authed_get("/api/waypoints/mine")
 
+func request_waypoint_qr(waypoint_id: int) -> HTTPRequest:
+	return _authed_get("/api/waypoints/%d/qr" % waypoint_id)
+
 func request_profile_picture() -> HTTPRequest:
 	return _authed_get("/api/me/picture")
 
 func upload_profile_picture(bytes: PackedByteArray) -> Dictionary:
+	return await _upload_bytes("/api/me/picture", bytes)
+
+func upload_waypoint_image(waypoint_id: int, bytes: PackedByteArray) -> Dictionary:
+	return await _upload_bytes("/api/waypoints/%d/image" % waypoint_id, bytes)
+
+func _upload_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
 	var http := HTTPRequest.new()
 	add_child(http)
 	_watch_unauth(http)
@@ -90,12 +99,25 @@ func upload_profile_picture(bytes: PackedByteArray) -> Dictionary:
 			return
 		promise.set_result({"ok": true})
 	)
-	http.request_raw(BASE_URL + "/api/me/picture", headers, HTTPClient.METHOD_POST, bytes)
+	http.request_raw(BASE_URL + path, headers, HTTPClient.METHOD_POST, bytes)
 	return await promise.async()
 
-func complete_waypoint(qr_secret: String) -> Dictionary:
-	var url := BASE_URL + "/api/waypoints/complete"
-	var body := JSON.stringify({"qrSecret": qr_secret})
+func scan_waypoint(qr_secret: String, latitude: float, longitude: float) -> Dictionary:
+	var url := BASE_URL + "/api/waypoints/scan"
+	var body := JSON.stringify({
+		"qrSecret": qr_secret,
+		"latitude": latitude,
+		"longitude": longitude
+	})
+	return await _post(url, body, auth_headers())
+
+func create_waypoint(title: String, description: String, difficulty: int) -> Dictionary:
+	var url := BASE_URL + "/api/waypoints"
+	var body := JSON.stringify({
+		"title": title,
+		"description": description,
+		"difficulty": difficulty
+	})
 	return await _post(url, body, auth_headers())
 
 func toggle_favourite(waypoint_id: int) -> Dictionary:

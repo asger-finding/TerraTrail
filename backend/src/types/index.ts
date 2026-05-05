@@ -108,6 +108,7 @@ export interface WaypointRow {
     created: number;
     updated: number;
     active: number;
+    activated: number;
 }
 
 /** Waypoint med brugerspecifikke data (isCompleted, isFavourited). */
@@ -124,6 +125,7 @@ export interface WaypointResponse {
     updated: number;
     isCompleted: boolean;
     isFavourited: boolean;
+    activated: boolean;
 }
 
 /** API-respons for `GET /api/route`. Koordinater i meter. */

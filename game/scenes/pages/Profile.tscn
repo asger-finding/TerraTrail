@@ -7,7 +7,8 @@
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_0ytqp"]
 [ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="6_wppop"]
 [ext_resource type="PackedScene" uid="uid://d0gonmmt5vj6y" path="res://scenes/components/CreateWaypointTile.tscn" id="7_create"]
-[ext_resource type="PackedScene" uid="uid://dprfico1n8scene" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
+[ext_resource type="PackedScene" uid="uid://tkye6s4i3tqp" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="8_vr1uq"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0ytqp"]
 font = ExtResource("3_0ytqp")
@@ -126,7 +127,7 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 4
 
-[node name="CreateWaypointTile" parent="ScrollContainer/Sections/MyWaypointsBox/MyWaypointsGrid" instance=ExtResource("7_create")]
+[node name="CreateWaypointTile" parent="ScrollContainer/Sections/MyWaypointsBox/MyWaypointsGrid" unique_id=551973353 instance=ExtResource("7_create")]
 layout_mode = 2
 
 [node name="AccountBox" type="Container" parent="ScrollContainer/Sections" unique_id=377608810]
@@ -181,6 +182,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme = ExtResource("2_t7o64")
 text = "Gem ændringer"
+script = ExtResource("8_vr1uq")
 
 [node name="StatusLabel" type="Label" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=849021068]
 unique_name_in_owner = true
@@ -195,6 +197,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme = ExtResource("2_t7o64")
 text = "Log ud"
+script = ExtResource("8_vr1uq")
 
 [node name="BottomSpacer" type="Control" parent="ScrollContainer/Sections" unique_id=885632710]
 custom_minimum_size = Vector2(0, 200)

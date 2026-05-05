@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bv6ogburxqogw" path="res://scripts/WaypointPopup.gd" id="1_77xng"]
 [ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_pv606"]
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_1n1nj"]
+[ext_resource type="Texture2D" uid="uid://b1kduik156ntj" path="res://assets/ui/checkmark.webp" id="3_kxxsc"]
 [ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="3_lv16c"]
 [ext_resource type="Texture2D" uid="uid://bg51s5c6ftrbe" path="res://assets/ui/favourites.webp" id="5_7pp2m"]
 
@@ -55,10 +56,6 @@ layout_mode = 2
 [node name="HeaderRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=201995537]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/HeaderRow" unique_id=680305285]
-custom_minimum_size = Vector2(50, 0)
-layout_mode = 2
-
 [node name="Title" type="Label" parent="PanelContainer/VBoxContainer/HeaderRow" unique_id=28962890]
 unique_name_in_owner = true
 layout_mode = 2
@@ -69,7 +66,7 @@ theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_fonts/font = ExtResource("3_1n1nj")
 theme_override_font_sizes/font_size = 24
-text = "WWWWWWWWWWWWW"
+text = "Title"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -83,13 +80,13 @@ size_flags_horizontal = 4
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="ImageHint" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow" unique_id=620481931]
+[node name="ImageHint" type="TextureButton" parent="PanelContainer/VBoxContainer/ImageRow" unique_id=620481931]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(256, 256)
 layout_mode = 2
 size_flags_vertical = 4
-expand_mode = 1
+ignore_texture_size = true
 stretch_mode = 5
 
 [node name="DifficultyStars" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ImageRow" unique_id=1604875658]
@@ -109,6 +106,15 @@ layout_mode = 2
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
+[node name="CompletedBadge" type="TextureRect" parent="PanelContainer/VBoxContainer/ImageRow/DifficultyStars" unique_id=60926052]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("3_kxxsc")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="MarginContainer5" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=703518292]
 custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
@@ -124,20 +130,27 @@ theme_override_fonts/font = ExtResource("3_1n1nj")
 text = "Placeholder description"
 autowrap_mode = 3
 
-[node name="CompletedBadge" type="Label" parent="PanelContainer/VBoxContainer" unique_id=777454273]
+[node name="ScanRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=467358966]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_1n1nj")
-text = "Gennemført"
+alignment = 1
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1511879797]
+[node name="ScanButton" type="Button" parent="PanelContainer/VBoxContainer/ScanRow" unique_id=744082813]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme = ExtResource("2_pv606")
+text = "Scan for at aktivere"
+script = ExtResource("3_lv16c")
+
+[node name="ActionsRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1511879797]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="StartButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2" unique_id=937101251]
+[node name="StartButton" type="Button" parent="PanelContainer/VBoxContainer/ActionsRow" unique_id=937101251]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
@@ -145,7 +158,7 @@ theme = ExtResource("2_pv606")
 text = "Start"
 script = ExtResource("3_lv16c")
 
-[node name="FavouriteButton" type="TextureButton" parent="PanelContainer/VBoxContainer/HBoxContainer2" unique_id=1256309273]
+[node name="FavouriteButton" type="TextureButton" parent="PanelContainer/VBoxContainer/ActionsRow" unique_id=1256309273]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2

@@ -66,16 +66,27 @@ func _on_qr_detected(data: String) -> void:
 	status_label.text = "Verificerer ..."
 	_stop_camera()
 
-	var result: Dictionary = await Backend.complete_waypoint(trimmed)
-	if result.get("ok", false):
-		status_label.text = "Fundet!"
-		var route_path := get_tree().get_first_node_in_group("route_path")
-		if route_path:
-			route_path.clear_route()
-		await get_tree().create_timer(1.0).timeout
-	else:
-		status_label.text = "Fejl: %s" % result.get("error", "Ukendt fejl")
+	var result: Dictionary = await Backend.scan_waypoint(
+		trimmed, Coordinates.player_lat, Coordinates.player_lon
+	)
+	if not result["ok"]:
+		status_label.text = "Fejl: %s" % result["error"]
 		await get_tree().create_timer(1.5).timeout
+		Router.back()
+		return
+
+	var data_dict: Dictionary = result["data"]
+	if "activated" in data_dict:
+		status_label.text = "Waypoint aktiveret!"
+		await get_tree().create_timer(1.0).timeout
+		Router.push("image_hint_camera", {"waypoint_id": int(data_dict["waypointId"])})
+		return
+
+	status_label.text = "Fundet!"
+	var route_path := get_tree().get_first_node_in_group("route_path")
+	if route_path:
+		route_path.clear_route()
+	await get_tree().create_timer(1.0).timeout
 	Router.back()
 
 func _on_cancel_button_button_up() -> void:
@@ -83,5 +94,4 @@ func _on_cancel_button_button_up() -> void:
 	Router.back()
 
 func _stop_camera() -> void:
-	if native_camera and native_camera.has_method("stop"):
-		native_camera.stop()
+	native_camera.stop()

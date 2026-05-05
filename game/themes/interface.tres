@@ -141,6 +141,20 @@ shadow_offset = Vector2(0, 2)
 texture = ExtResource("2_bhva1")
 axis_stretch_horizontal = 1
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6ywlu"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.22745098)
+shadow_size = 1
+shadow_offset = Vector2(4, 4)
+
 [resource]
 Button/colors/font_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
 Button/colors/font_disabled_color = Color(0, 0, 0, 1)
@@ -192,3 +206,8 @@ ProgressBar/font_sizes/font_size = 20
 ProgressBar/fonts/font = ExtResource("1_04ric")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_ft83e")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_4w5t0")
+TextEdit/colors/caret_color = Color(0, 0, 0, 1)
+TextEdit/colors/font_color = Color(0, 0, 0, 1)
+TextEdit/fonts/font = ExtResource("1_04ric")
+TextEdit/styles/focus = SubResource("StyleBoxFlat_6ywlu")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_6ywlu")

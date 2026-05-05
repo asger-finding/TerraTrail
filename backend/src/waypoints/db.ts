@@ -18,7 +18,8 @@ db.run(`
         image_path TEXT,
         created INTEGER NOT NULL,
         updated INTEGER NOT NULL,
-        active INTEGER NOT NULL DEFAULT 1
+        active INTEGER NOT NULL DEFAULT 1,
+        activated INTEGER NOT NULL DEFAULT 0
     )
 `);
 
@@ -42,10 +43,16 @@ db.run(`
     )
 `);
 
-const insertWaypoint = db.prepare<WaypointRow, [number, string, string, number, number, number, string, number, number]>(
-    `INSERT INTO waypoints (creator_id, title, description, difficulty, latitude, longitude, qr_secret, created, updated)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+const insertWaypoint = db.prepare<WaypointRow, [number, string, string, number, string, number, number]>(
+    `INSERT INTO waypoints (creator_id, title, description, difficulty, latitude, longitude, qr_secret, created, updated, activated)
+     VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, 0)
      RETURNING *`
+);
+
+const activateStatement = db.prepare<{ id: number }, [number, number, number, number, number]>(
+    `UPDATE waypoints SET latitude = ?, longitude = ?, activated = 1, updated = ?
+     WHERE id = ? AND creator_id = ? AND activated = 0
+     RETURNING id`
 );
 
 const selectInBBox = db.prepare<
@@ -58,7 +65,7 @@ const selectInBBox = db.prepare<
      FROM waypoints w
      LEFT JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
      LEFT JOIN waypoint_favourites  wf ON wf.waypoint_id = w.id AND wf.user_id = ?
-     WHERE w.active = 1
+     WHERE w.active = 1 AND w.activated = 1
        AND w.longitude BETWEEN ? AND ?
        AND w.latitude  BETWEEN ? AND ?`
 );
@@ -73,7 +80,7 @@ const selectById = db.prepare<
      FROM waypoints w
      LEFT JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
      LEFT JOIN waypoint_favourites  wf ON wf.waypoint_id = w.id AND wf.user_id = ?
-     WHERE w.id = ? AND w.active = 1`
+     WHERE w.id = ? AND w.active = 1 AND w.activated = 1`
 );
 
 const selectFavourites = db.prepare<
@@ -86,7 +93,7 @@ const selectFavourites = db.prepare<
      FROM waypoints w
      INNER JOIN waypoint_favourites wf ON wf.waypoint_id = w.id AND wf.user_id = ?
      LEFT JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
-     WHERE w.active = 1
+     WHERE w.active = 1 AND w.activated = 1
      ORDER BY wf.created_at DESC`
 );
 
@@ -100,7 +107,7 @@ const selectCompletions = db.prepare<
      FROM waypoints w
      INNER JOIN waypoint_completions wc ON wc.waypoint_id = w.id AND wc.user_id = ?
      LEFT JOIN waypoint_favourites wf ON wf.waypoint_id = w.id AND wf.user_id = ?
-     WHERE w.active = 1
+     WHERE w.active = 1 AND w.activated = 1
      ORDER BY wc.completed_at DESC`
 );
 
@@ -155,8 +162,8 @@ const deleteFavourite = db.prepare<void, [number, number]>(
     'DELETE FROM waypoint_favourites WHERE user_id = ? AND waypoint_id = ?'
 );
 
-const selectSecretByIdAndCreator = db.prepare<{ qr_secret: string }, [number, number]>(
-    'SELECT qr_secret FROM waypoints WHERE id = ? AND creator_id = ? AND active = 1'
+const selectQrInfoByIdAndCreator = db.prepare<{ qr_secret: string; title: string }, [number, number]>(
+    'SELECT qr_secret, title FROM waypoints WHERE id = ? AND creator_id = ? AND active = 1'
 );
 
 const selectOwnership = db.prepare<{ id: number }, [number, number]>(
@@ -176,17 +183,17 @@ function toFormattedResponse(row: WaypointRow & { is_completed: number; is_favou
         created: row.created,
         updated: row.updated,
         isCompleted: row.is_completed === 1,
-        isFavourited: row.is_favourited === 1
+        isFavourited: row.is_favourited === 1,
+        activated: row.activated === 1
     };
 }
 
 export function createWaypoint(
-    creatorId: number, title: string, description: string,
-    difficulty: number, latitude: number, longitude: number
+    creatorId: number, title: string, description: string, difficulty: number
 ): WaypointRow {
     const qrSecret = crypto.randomUUID();
     const now = Date.now();
-    return insertWaypoint.get(creatorId, title, description, difficulty, latitude, longitude, qrSecret, now, now)!;
+    return insertWaypoint.get(creatorId, title, description, difficulty, qrSecret, now, now)!;
 }
 
 export function getWaypointsInBBox(
@@ -229,10 +236,25 @@ export function setWaypointImage(id: number, creatorId: number, filename: string
     return updateImageStatement.get(filename, now, id, creatorId) !== null;
 }
 
-export function completeWaypoint(userId: number, qrSecret: string): { waypoint: WaypointRow } | { error: string } {
+export type ScanResult =
+    | { activated: true; waypoint: WaypointRow }
+    | { completed: true; waypoint: WaypointRow }
+    | { error: string };
+
+export function scanWaypoint(
+    userId: number, qrSecret: string, latitude: number, longitude: number
+): ScanResult {
     const waypoint = selectBySecret.get(qrSecret);
     if (!waypoint) return { error: 'Waypoint ikke fundet' };
-    if (waypoint.creator_id === userId) return { error: 'Kan ikke gennemføre egen waypoint' };
+
+    if (waypoint.creator_id === userId) {
+        if (waypoint.activated === 1) return { error: 'Egen waypoint, allerede aktiveret' };
+        const now = Date.now();
+        activateStatement.run(latitude, longitude, now, waypoint.id, userId);
+        return { activated: true, waypoint: { ...waypoint, latitude, longitude, activated: 1, updated: now } };
+    }
+
+    if (waypoint.activated === 0) return { error: 'Waypoint ikke aktiveret endnu' };
 
     try {
         insertCompletion.get(userId, waypoint.id, Date.now());
@@ -242,7 +264,7 @@ export function completeWaypoint(userId: number, qrSecret: string): { waypoint: 
     }
 
     addExp(userId, waypoint.difficulty * EXP_PER_DIFFICULTY);
-    return { waypoint };
+    return { completed: true, waypoint };
 }
 
 export function toggleFavourite(userId: number, waypointId: number): boolean {
@@ -255,8 +277,9 @@ export function toggleFavourite(userId: number, waypointId: number): boolean {
     return true;
 }
 
-export function getWaypointSecret(id: number, creatorId: number): string | null {
-    return selectSecretByIdAndCreator.get(id, creatorId)?.qr_secret ?? null;
+export function getWaypointQrInfo(id: number, creatorId: number): { qrSecret: string; title: string } | null {
+    const row = selectQrInfoByIdAndCreator.get(id, creatorId);
+    return row ? { qrSecret: row.qr_secret, title: row.title } : null;
 }
 
 export function isWaypointCreator(id: number, creatorId: number): boolean {

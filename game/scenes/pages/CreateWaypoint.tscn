@@ -1,0 +1,243 @@
+[gd_scene format=3 uid="uid://fwhr40wk8myq"]
+
+[ext_resource type="Script" uid="uid://cc1j7t6xh8brb" path="res://scripts/CreateWaypoint.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="2_bg"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="3_theme"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="4_font"]
+[ext_resource type="Texture2D" uid="uid://ce5u4s04l0tnn" path="res://assets/ui/star_filled.svg" id="5_starfill"]
+[ext_resource type="Script" uid="uid://cbgujn2ce4qim" path="res://scripts/classes/PressOffsetButton.gd" id="5_y1s45"]
+[ext_resource type="Texture2D" uid="uid://yk5pku7yhwr2" path="res://assets/ui/star.svg" id="6_starempty"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font = ExtResource("4_font")
+font_size = 24
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.20784314)
+shadow_offset = Vector2(2, 2)
+
+[node name="CreateWaypoint" type="Control" unique_id=2010234230]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1672826527]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+
+[node name="Header" type="Label" parent="." unique_id=500354894]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 44.0
+offset_right = -16.0
+offset_bottom = 96.0
+grow_horizontal = 2
+text = "Opret waypoint"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="." unique_id=1215318237]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -47.0
+offset_right = 115.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme = ExtResource("3_theme")
+theme_override_font_sizes/font_size = 16
+text = "← Tilbage"
+script = ExtResource("5_y1s45")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=6748108]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 110.0
+offset_right = -16.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="Content" type="VBoxContainer" parent="ScrollContainer" unique_id=609908115]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="FormView" type="VBoxContainer" parent="ScrollContainer/Content" unique_id=749950850]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="ScrollContainer/Content/FormView" unique_id=644335552]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4392157)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+text = "Titel"
+
+[node name="TitleInput" type="LineEdit" parent="ScrollContainer/Content/FormView" unique_id=1612250774]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_theme")
+placeholder_text = "Maks 13 tegn"
+max_length = 13
+
+[node name="DescLabel" type="Label" parent="ScrollContainer/Content/FormView" unique_id=318453844]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4392157)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+text = "Beskrivelse"
+
+[node name="DescInput" type="TextEdit" parent="ScrollContainer/Content/FormView" unique_id=1935844057]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme = ExtResource("3_theme")
+wrap_mode = 1
+
+[node name="DiffLabel" type="Label" parent="ScrollContainer/Content/FormView" unique_id=224293767]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4392157)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+text = "Sværhedsgrad"
+
+[node name="DiffStars" type="HBoxContainer" parent="ScrollContainer/Content/FormView" unique_id=232623456]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Star1" type="TextureButton" parent="ScrollContainer/Content/FormView/DiffStars" unique_id=11762253]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture_normal = ExtResource("5_starfill")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Star2" type="TextureButton" parent="ScrollContainer/Content/FormView/DiffStars" unique_id=2025443025]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture_normal = ExtResource("6_starempty")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Star3" type="TextureButton" parent="ScrollContainer/Content/FormView/DiffStars" unique_id=1477840856]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture_normal = ExtResource("6_starempty")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/Content/FormView" unique_id=2132364163]
+layout_mode = 2
+theme_override_constants/margin_top = 12
+
+[node name="SubmitButton" type="Button" parent="ScrollContainer/Content/FormView" unique_id=175713617]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_theme")
+text = "Opret"
+script = ExtResource("5_y1s45")
+
+[node name="StatusLabel" type="Label" parent="ScrollContainer/Content/FormView" unique_id=1999325399]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+
+[node name="QrView" type="VBoxContainer" parent="ScrollContainer/Content" unique_id=1353655907]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="HintLabel" type="Label" parent="ScrollContainer/Content/QrView" unique_id=1582683482]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4392157)
+theme_override_colors/font_outline_color = Color(1, 0, 0.016666412, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+text = "OBS:
+Print QR-koden og scan den på lokationen for at aktivere waypointet."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="QrImage" type="TextureButton" parent="ScrollContainer/Content/QrView" unique_id=428892945]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(256, 256)
+layout_mode = 2
+size_flags_horizontal = 4
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="HintLabel2" type="Label" parent="ScrollContainer/Content/QrView" unique_id=912126631]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4392157)
+theme_override_colors/font_outline_color = Color(1, 0, 0.016666412, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+text = "Klik QR-koden for at gemme til din telefon"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DoneButton" type="Button" parent="ScrollContainer/Content/QrView" unique_id=13462500]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_theme")
+text = "Færdig"
+script = ExtResource("5_y1s45")
+
+[node name="BottomSpacer" type="Control" parent="ScrollContainer/Content" unique_id=448027491]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[connection signal="pressed" from="BackButton" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="ScrollContainer/Content/FormView/DiffStars/Star1" to="." method="_on_star_pressed" binds= [1]]
+[connection signal="pressed" from="ScrollContainer/Content/FormView/DiffStars/Star2" to="." method="_on_star_pressed" binds= [2]]
+[connection signal="pressed" from="ScrollContainer/Content/FormView/DiffStars/Star3" to="." method="_on_star_pressed" binds= [3]]
+[connection signal="pressed" from="ScrollContainer/Content/FormView/SubmitButton" to="." method="_on_submit_pressed"]
+[connection signal="pressed" from="ScrollContainer/Content/QrView/QrImage" to="." method="_on_qr_pressed"]
+[connection signal="pressed" from="ScrollContainer/Content/QrView/DoneButton" to="." method="_on_done_pressed"]

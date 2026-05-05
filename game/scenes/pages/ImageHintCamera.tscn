@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://g7kvt8b3oa11"]
+
+[ext_resource type="Script" uid="uid://cgs1xgnr1t10m" path="res://scripts/ImageHintCamera.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://xf1nfokaa871" path="res://addons/NativeCameraPlugin/NativeCamera.gd" id="2_camera"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="2_d7ybg"]
+[ext_resource type="Texture2D" uid="uid://d16rubh8bpjyh" path="res://assets/ui/take_photo.webp" id="3_7p2yc"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="3_theme"]
+
+[node name="ImageHintCamera" type="Control" unique_id=1621057369]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1823604687]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CameraView" type="TextureRect" parent="." unique_id=381829253]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="HintLabel" type="Label" parent="." unique_id=1739078781]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 32.0
+offset_right = -16.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("2_d7ybg")
+theme_override_font_sizes/font_size = 18
+text = "Aktiveret! Tag et flot foto, der vises i appen. Du må ikke inkludere QR koden i fotoet."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="StatusLabel" type="Label" parent="." unique_id=412217482]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = -130.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TriggerButton" type="TextureButton" parent="." unique_id=1396309031]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -128.0
+offset_top = -275.141
+offset_right = 128.0
+offset_bottom = -19.140991
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.4, 0.4)
+pivot_offset = Vector2(128, 256)
+theme = ExtResource("3_theme")
+texture_normal = ExtResource("3_7p2yc")
+texture_pressed = ExtResource("3_7p2yc")
+texture_hover = ExtResource("3_7p2yc")
+texture_disabled = ExtResource("3_7p2yc")
+texture_focused = ExtResource("3_7p2yc")
+
+[node name="NativeCamera" type="Node" parent="." unique_id=803674123]
+unique_name_in_owner = true
+script = ExtResource("2_camera")
+metadata/_custom_type_script = "uid://xf1nfokaa871"
+
+[connection signal="pressed" from="TriggerButton" to="." method="_on_trigger_pressed"]
