@@ -1,6 +1,6 @@
 extends Node
 
-const BASE_URL := "http://localhost:3000"
+const BASE_URL := "http://77.42.126.76:3000"
 
 var _http: HTTPRequest
 
