@@ -51,6 +51,7 @@ theme_override_constants/separation = 12
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
+editable = true
 
 [node name="HeaderInfo" type="VBoxContainer" parent="Header" unique_id=324689474]
 layout_mode = 2

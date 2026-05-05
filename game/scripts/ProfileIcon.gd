@@ -2,9 +2,13 @@ extends PanelContainer
 
 signal pressed
 
+@export var editable: bool = false
+
 @onready var image: TextureRect = %Image
+@onready var edit_icon: TextureRect = %EditIcon
 
 func _ready() -> void:
+	edit_icon.visible = editable
 	refresh()
 
 func refresh() -> void:

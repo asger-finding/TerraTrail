@@ -1,4 +1,4 @@
-import type { BBox, TileCoord } from '../types/index.js';
+import type { TileCoord } from '../types/index.js';
 
 /** Jordens omkreds ved ækvator i meter */
 const EARTH_CIRCUMFERENCE_M = 40_075_016.686;
@@ -50,30 +50,9 @@ export function xyzToTmsY(y: number, zoom: number): number {
 }
 
 /**
- * Find alle tile-koordinater der overlapper en bounding box ved et givet zoomniveau.
- * @param bbox - Bounding box (lon/lat)
- * @param zoom - Zoomniveau (0-14)
- * @returns Liste af tile-koordinater (XYZ-konvention)
- */
-export function bboxToTiles(bbox: BBox, zoom: number): TileCoord[] {
-    const minX = lonToTileX(bbox.minLon, zoom);
-    const maxX = lonToTileX(bbox.maxLon, zoom);
-    const minY = latToTileY(bbox.maxLat, zoom); // NB: højere breddegrad = lavere Y
-    const maxY = latToTileY(bbox.minLat, zoom);
-
-    const tiles: TileCoord[] = [];
-    for (let x = minX; x <= maxX; x++) {
-        for (let y = minY; y <= maxY; y++) {
-            tiles.push({ z: zoom, x, y });
-        }
-    }
-    return tiles;
-}
-
-/**
  * Returner øverste venstre hjørne af en tile som lon/lat.
- * Invers af lonToTileX/latToTileY — går fra tile-indeks tilbage til WGS  
- * Se: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames (Tile numbers to lon./lat.)
+ * Invers af lonToTileX og latToTileY (tile-indeks tilbage til WGS84).
+ * Se https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames.
  * @param x - Tile X-koordinat
  * @param y - Tile Y-koordinat
  * @param zoom - Zoomniveau

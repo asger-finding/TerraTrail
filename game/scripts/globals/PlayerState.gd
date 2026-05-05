@@ -23,7 +23,6 @@ func set_from_response(data: Dictionary) -> void:
 	username = player["username"]
 	created = int(player["created"])
 	last_login = int(player["lastLogin"])
-	print("Authenticated as %s (id %d)" % [username, player_id])
 	_save()
 	authenticated.emit()
 

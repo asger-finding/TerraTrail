@@ -124,18 +124,6 @@ const selectMyWaypoints = db.prepare<
      ORDER BY w.created DESC`
 );
 
-const updateStatement = db.prepare<WaypointRow, [string, string, number, number, number, number]>(
-    `UPDATE waypoints SET title = ?, description = ?, difficulty = ?, updated = ?
-     WHERE id = ? AND creator_id = ?
-     RETURNING *`
-);
-
-const softDeleteStatement = db.prepare<{ id: number }, [number, number, number]>(
-    `UPDATE waypoints SET active = 0, updated = ?
-     WHERE id = ? AND creator_id = ?
-     RETURNING id`
-);
-
 const updateImageStatement = db.prepare<{ id: number }, [string | null, number, number, number]>(
     `UPDATE waypoints SET image_path = ?, updated = ?
      WHERE id = ? AND creator_id = ?
@@ -217,18 +205,6 @@ export function getCompletions(userId: number): WaypointResponse[] {
 
 export function getMyWaypoints(userId: number): WaypointResponse[] {
     return selectMyWaypoints.all(userId, userId).map(toFormattedResponse);
-}
-
-export function updateWaypoint(
-    id: number, creatorId: number, title: string, description: string, difficulty: number
-): WaypointRow | null {
-    const now = Date.now();
-    return updateStatement.get(title, description, difficulty, now, id, creatorId) ?? null;
-}
-
-export function deleteWaypoint(id: number, creatorId: number): boolean {
-    const now = Date.now();
-    return softDeleteStatement.get(now, id, creatorId) !== null;
 }
 
 export function setWaypointImage(id: number, creatorId: number, filename: string | null): boolean {

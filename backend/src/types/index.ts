@@ -17,19 +17,6 @@ export interface TileMeshData {
     landcover: MeshLayer;
 }
 
-/** API-respons for `GET /api/tiles`. */
-export interface TileResponse {
-    tiles: TileMeshData[];
-}
-
-/** WGS84 bounding box i decimalgrader. */
-export interface BBox {
-    minLon: number;
-    minLat: number;
-    maxLon: number;
-    maxLat: number;
-}
-
 /** Tile-koordinat i XYZ/slippy map-konvention. Y=0 = nord. */
 export interface TileCoord {
     z: number;

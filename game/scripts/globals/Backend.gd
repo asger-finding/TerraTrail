@@ -40,9 +40,6 @@ func _authed_get(path: String) -> HTTPRequest:
 	http.request(BASE_URL + path, auth_headers())
 	return http
 
-func request_tiles(bbox: String, zoom: int) -> HTTPRequest:
-	return _authed_get("/api/tiles?bbox=%s&zoom=%d" % [bbox, zoom])
-
 func request_tile(x: int, y: int, z: int) -> HTTPRequest:
 	return _authed_get("/api/tile?x=%d&y=%d&z=%d" % [x, y, z])
 

@@ -81,7 +81,7 @@ func _on_favourite_pressed() -> void:
 	var result: Dictionary = await Backend.toggle_favourite(_waypoint_id)
 	favourite_button.disabled = false
 	if result["ok"]:
-		_is_favourited = result["data"]["favourited"]
+		_is_favourited = result["data"]["isFavourited"]
 		_update_favourite_visual()
 
 func _update_favourite_visual() -> void:

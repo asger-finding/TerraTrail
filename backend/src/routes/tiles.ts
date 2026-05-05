@@ -1,9 +1,9 @@
 import Router from '@koa/router';
 import { pack } from 'msgpackr';
-import type { BBox, MeshLayer, TileCoord, TileMeshData, TileResponse } from '../types/index.js';
+import type { MeshLayer, TileCoord, TileMeshData } from '../types/index.js';
 import { MBTilesReader } from '../services/mbtiles.js';
 import { parseMvtTile } from '../services/mvt-parser.js';
-import { bboxToTiles, tileToLonLat, tileSizeMeters } from '../services/coordinates.js';
+import { tileToLonLat, tileSizeMeters } from '../services/coordinates.js';
 import { generateBuildingMesh } from '../services/mesh/buildings.js';
 import { generateRoadMesh } from '../services/mesh/roads.js';
 import { generateFlatMesh } from '../services/mesh/flat.js';
@@ -45,51 +45,6 @@ function buildTileMesh(mbtiles: MBTilesReader, coord: TileCoord): TileMeshData |
 
 export function createTileRouter(mbtiles: MBTilesReader): Router {
     const router = new Router({ prefix: '/api' });
-
-    /**
-     * Hent mesh-data for alle tiles i en bounding box.
-     */
-    router.get('/tiles', (ctx) => {
-        const { bbox: bboxStr, zoom: zoomStr } = ctx.query;
-
-        if (typeof bboxStr !== 'string' || typeof zoomStr !== 'string') {
-            ctx.status = 400;
-            ctx.body = { error: 'Mangler bbox eller zoom parameter' };
-            return;
-        }
-
-        const parts = bboxStr.split(',').map(Number);
-        if (parts.length !== 4 || parts.some(isNaN)) {
-            ctx.status = 400;
-            ctx.body = { error: 'bbox skal være minLon,minLat,maxLon,maxLat' };
-            return;
-        }
-
-        const zoom = parseInt(zoomStr, 10);
-        if (isNaN(zoom) || zoom < 0 || zoom > 14) {
-            ctx.status = 400;
-            ctx.body = { error: 'zoom skal være heltal mellem 0-14' };
-            return;
-        }
-
-        const bbox: BBox = { minLon: parts[0], minLat: parts[1], maxLon: parts[2], maxLat: parts[3] };
-
-        const tileCoords = bboxToTiles(bbox, zoom);
-        const response: TileResponse = {
-            tiles: tileCoords
-                .map(coord => buildTileMesh(mbtiles, coord))
-                .filter(t => t !== null)
-        };
-
-        const format = ctx.query.format;
-        if (format === 'json') {
-            ctx.type = 'application/json';
-            ctx.body = JSON.stringify(response);
-        } else {
-            ctx.type = 'application/x-msgpack';
-            ctx.body = pack(response);
-        }
-    });
 
     /**
      * Hent mesh-data for en enkelt tile.

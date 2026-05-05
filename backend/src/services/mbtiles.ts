@@ -31,9 +31,7 @@ export class MBTilesReader {
         return row?.tile_data ?? null;
     }
 
-    /**
-     * Luk databaseforbindelsen.
-     */
+    /** Luk databaseforbindelsen */
     close(): void {
         this.db.close();
     }

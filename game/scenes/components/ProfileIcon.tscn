@@ -1,32 +1,69 @@
 [gd_scene format=3 uid="uid://tkye6s4i3tqp"]
 
 [ext_resource type="Script" uid="uid://ceoicr3fatonn" path="res://scripts/ProfileIcon.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://djnuyfqemt3lk" path="res://assets/ui/pencil.webp" id="2_ltvbw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
 bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 22
 corner_radius_top_right = 22
 corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
 
 [node name="ProfileIcon" type="PanelContainer" unique_id=582465464]
-custom_minimum_size = Vector2(64, 64)
 clip_children = 1
+custom_minimum_size = Vector2(64, 64)
 theme_override_styles/panel = SubResource("StyleBoxFlat_icon")
 script = ExtResource("1_script")
 
-[node name="Image" type="TextureRect" parent="."]
+[node name="Layout" type="Control" parent="." unique_id=121212121]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="Image" type="TextureRect" parent="Layout" unique_id=978270497]
 unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ClickArea" type="Button" parent="."]
+[node name="ClickArea" type="Button" parent="Layout" unique_id=1874447725]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
 flat = true
 
-[connection signal="pressed" from="ClickArea" to="." method="_on_pressed"]
+[node name="EditIcon" type="TextureRect" parent="Layout" unique_id=732269275]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -21.0
+offset_top = -21.0
+offset_right = -3.0
+offset_bottom = -3.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("2_ltvbw")
+expand_mode = 1
+stretch_mode = 5
+
+[connection signal="pressed" from="Layout/ClickArea" to="." method="_on_pressed"]

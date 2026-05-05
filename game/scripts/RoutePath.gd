@@ -81,8 +81,6 @@ func _build_route_mesh(points_flat: Array) -> void:
 	mi.name = "route"
 	add_child(mi)
 
-	print("Route mesh: %d points" % point_count)
-
 func _build_ribbon(points: PackedVector3Array, half_width: float, y_offset: float) -> ArrayMesh:
 	var point_count := points.size()
 	var vertices := PackedVector3Array()

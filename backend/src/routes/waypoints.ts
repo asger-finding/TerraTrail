@@ -11,8 +11,6 @@ import {
     getFavourites,
     getCompletions,
     getMyWaypoints,
-    updateWaypoint,
-    deleteWaypoint,
     scanWaypoint,
     toggleFavourite,
     getWaypointQrInfo,
@@ -101,7 +99,7 @@ export function createWaypointRouter(): Router {
 
         const waypoint = createWaypoint(user.playerId, title!, description!, difficulty!);
         ctx.status = 201;
-        ctx.body = { waypoint };
+        ctx.body = { waypoint: { id: waypoint.id } };
     });
 
     /**
@@ -292,57 +290,16 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Opdater eget waypoints titel, beskrivelse og sværhedsgrad
-     */
-    router.put('/:id', async (ctx) => {
-        const user = ctx.state.user as AuthUser;
-        const id = Number(ctx.params.id);
-        const body = ctx.request.body as Record<string, unknown>;
-
-        const fieldError = validateWaypointFields(body);
-        if (fieldError) {
-            ctx.status = 400;
-            ctx.body = { error: fieldError };
-            return;
-        }
-
-        const { title, description, difficulty } = body as {
-            title: string; description: string; difficulty: number;
-        };
-
-        const updated = updateWaypoint(id, user.playerId, title, description, difficulty);
-        if (!updated) {
-            ctx.status = 403;
-            ctx.body = { error: 'Waypoint ikke fundet eller er ikke din' };
-            return;
-        }
-
-        ctx.body = { waypoint: updated };
-    });
-
-    /**
-     * Soft delete et eget waypoint
-     */
-    router.delete('/:id', async (ctx) => {
-        const user = ctx.state.user as AuthUser;
-        const id = Number(ctx.params.id);
-
-        if (!deleteWaypoint(id, user.playerId)) {
-            ctx.status = 403;
-            ctx.body = { error: 'Waypoint ikke fundet eller er ikke din' };
-            return;
-        }
-
-        // 204 No Content
-        ctx.status = 204;
-    });
-
-    /**
      * Få waypoint QR-koden som PNG (1024x1024 for at kunne printes/deles)
      */
     router.get('/:id/qr', async (ctx) => {
         const user = ctx.state.user as AuthUser;
         const id = Number(ctx.params.id);
+        if (!Number.isInteger(id)) {
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldigt waypoint id' };
+            return;
+        }
 
         const info = getWaypointQrInfo(id, user.playerId);
         if (!info) {
@@ -361,6 +318,11 @@ export function createWaypointRouter(): Router {
     router.post('/:id/favourite', async (ctx) => {
         const user = ctx.state.user as AuthUser;
         const id = Number(ctx.params.id);
+        if (!Number.isInteger(id)) {
+            ctx.status = 400;
+            ctx.body = { error: 'Ugyldigt waypoint id' };
+            return;
+        }
 
         const waypoint = getWaypoint(id, user.playerId);
         if (!waypoint) {
@@ -369,8 +331,8 @@ export function createWaypointRouter(): Router {
             return;
         }
 
-        const favourited = toggleFavourite(user.playerId, id);
-        ctx.body = { favourited };
+        const isFavourited = toggleFavourite(user.playerId, id);
+        ctx.body = { isFavourited };
     });
 
     return router;

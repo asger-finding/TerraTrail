@@ -7,7 +7,7 @@
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_0ytqp"]
 [ext_resource type="PackedScene" uid="uid://q2pcjfcou1td" path="res://scenes/components/UnlockedAchievementPopup.tscn" id="6_1syeu"]
 [ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="7_wppop"]
-[ext_resource type="PackedScene" uid="uid://dprfico1n8scene" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
+[ext_resource type="PackedScene" uid="uid://tkye6s4i3tqp" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0ytqp"]
 font = ExtResource("3_0ytqp")
