@@ -1,5 +1,5 @@
 import Router from '@koa/router';
-import { encodeQR } from 'qr';
+import QRCode from 'qrcode';
 import sharp from 'sharp';
 import { mkdirSync, existsSync, createReadStream } from 'node:fs';
 import path from 'node:path';
@@ -36,17 +36,33 @@ function escapeXml(s: string): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+const QR_PX = 1024;
+const TITLE_PX = 140;
+
 /**
- * Bygger en SVG med QR-koden øverst og titlen som tekst nedenunder.
+ * Genererer en PNG med QR-koden (1024px) og titlen i et felt nedenunder
  */
-function buildQrSvg(secret: string, title: string): string {
-    const matrix = encodeQR(secret, 'raw') as boolean[][];
-    const size = matrix.length;
-    const cells: string[] = [];
-    for (let y = 0; y < size; y++)
-        for (let x = 0; x < size; x++)
-            if (matrix[y][x]) cells.push(`M${x} ${y}h1v1h-1Z`);
-    return `<svg viewBox="0 0 ${size} ${size + 6}" xmlns="http://www.w3.org/2000/svg" fill="black"><path d="${cells.join('')}"/><text x="${size / 2}" y="${size + 4}" text-anchor="middle" font-size="3" font-family="sans-serif">${escapeXml(title)}</text></svg>`;
+async function buildQrPng(secret: string, title: string): Promise<Buffer> {
+    const qrPng = await QRCode.toBuffer(secret, {
+        type: 'png',
+        width: QR_PX,
+        margin: 2,
+        errorCorrectionLevel: 'M'
+    });
+
+    const fontSize = Math.floor(TITLE_PX * 0.5);
+    const titleSvg = Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${QR_PX}" height="${TITLE_PX}">`
+        + '<rect width="100%" height="100%" fill="white"/>'
+        + `<text x="${QR_PX / 2}" y="${TITLE_PX * 0.7}" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="${fontSize}" fill="black">${escapeXml(title)}</text>`
+        + '</svg>'
+    );
+
+    return sharp(qrPng)
+        .extend({ bottom: TITLE_PX, background: 'white' })
+        .composite([{ input: titleSvg, top: QR_PX, left: 0 }])
+        .png()
+        .toBuffer();
 }
 
 function validateWaypointFields(body: Record<string, unknown>): string | null {
@@ -321,13 +337,8 @@ export function createWaypointRouter(): Router {
             return;
         }
 
-        const svg = buildQrSvg(info.qrSecret, info.title);
-        const png = await sharp(Buffer.from(svg))
-            .resize({ width: 1024, kernel: 'nearest' })
-            .png()
-            .toBuffer();
         ctx.type = 'image/png';
-        ctx.body = png;
+        ctx.body = await buildQrPng(info.qrSecret, info.title);
     });
 
     /**
