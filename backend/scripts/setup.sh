@@ -47,6 +47,9 @@ else
     sudo -u "$VPS_USER" git clone "$REPO" "$INSTALL_DIR"
 fi
 
+# Træk LFS-filer
+sudo -u "$VPS_USER" git -C "$INSTALL_DIR" lfs pull
+
 # Disse mapper skal oprettes og ekistere
 # for systemd ReadWritePaths
 mkdir -p "$INSTALL_DIR/backend/data" "$INSTALL_DIR/backend/.keys"
