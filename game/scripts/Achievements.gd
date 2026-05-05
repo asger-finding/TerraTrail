@@ -78,6 +78,7 @@ func _on_completed_response(result: int, code: int, _headers: PackedStringArray,
 		var tile := WAYPOINT_TILE.instantiate()
 		completed_grid.add_child(tile)
 		tile.populate(wp)
+		tile.pressed.connect(_on_waypoint_tile_pressed)
 
 func _make_achievement_cell(entry: Dictionary) -> Control:
 	var btn := TextureButton.new()
@@ -92,6 +93,10 @@ func _make_achievement_cell(entry: Dictionary) -> Control:
 func _on_achievement_pressed(entry: Dictionary) -> void:
 	var popup := get_tree().get_first_node_in_group("unlocked_achievement_popup")
 	popup.open(entry)
+
+func _on_waypoint_tile_pressed(wp: Dictionary) -> void:
+	var popup := get_tree().get_first_node_in_group("waypoint_popup")
+	popup.open(wp, false)
 
 func _load_leaderboard() -> void:
 	var http := Backend.request_leaderboard()

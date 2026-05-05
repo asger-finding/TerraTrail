@@ -1,3 +1,209 @@
 [gd_scene format=3 uid="uid://d1chqsvdtb2wm"]
 
-[node name="Profile" type="Node" unique_id=2000917719]
+[ext_resource type="Script" uid="uid://18todp77b4m3" path="res://scripts/Profile.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b6c2oqgcba27j" path="res://scripts/classes/FieldsetBox.gd" id="2_fieldset"]
+[ext_resource type="Texture2D" uid="uid://dgfeecixh7j8p" path="res://assets/ui/background.webp" id="2_iuner"]
+[ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_t7o64"]
+[ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_0ytqp"]
+[ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="6_wppop"]
+[ext_resource type="PackedScene" uid="uid://d0gonmmt5vj6y" path="res://scenes/components/CreateWaypointTile.tscn" id="7_create"]
+[ext_resource type="PackedScene" uid="uid://dprfico1n8scene" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0ytqp"]
+font = ExtResource("3_0ytqp")
+font_size = 24
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.20784314)
+shadow_offset = Vector2(2, 2)
+
+[node name="Profile" type="Control" unique_id=105093295]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="." unique_id=322495327]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_iuner")
+expand_mode = 1
+
+[node name="Header" type="HBoxContainer" parent="." unique_id=779657805]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 44.0
+offset_right = -16.0
+offset_bottom = 117.0
+grow_horizontal = 2
+theme_override_constants/separation = 12
+
+[node name="ProfileIcon" parent="Header" unique_id=126702970 instance=ExtResource("8_picon")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="HeaderInfo" type="VBoxContainer" parent="Header" unique_id=324689474]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Username" type="Label" parent="Header/HeaderInfo" unique_id=684587988]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Brugernavn"
+label_settings = SubResource("LabelSettings_0ytqp")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="Header/HeaderInfo" unique_id=48600479]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+
+[node name="ExpBar" type="ProgressBar" parent="Header/HeaderInfo" unique_id=1526419870]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme = ExtResource("2_t7o64")
+show_percentage = false
+
+[node name="ExpBarLabel" type="Label" parent="Header/HeaderInfo/ExpBar" unique_id=68130411]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 16
+text = "Level x (xx/yy exp)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1032476493]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 140.0
+offset_right = -16.0
+offset_bottom = -106.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="Sections" type="VBoxContainer" parent="ScrollContainer" unique_id=2005535534]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="MyWaypointsBox" type="Container" parent="ScrollContainer/Sections" unique_id=1589452316]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_t7o64")
+script = ExtResource("2_fieldset")
+title = "Egne waypoints"
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
+border_width = 1.0
+
+[node name="MyWaypointsGrid" type="GridContainer" parent="ScrollContainer/Sections/MyWaypointsBox" unique_id=1997147528]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="CreateWaypointTile" parent="ScrollContainer/Sections/MyWaypointsBox/MyWaypointsGrid" instance=ExtResource("7_create")]
+layout_mode = 2
+
+[node name="AccountBox" type="Container" parent="ScrollContainer/Sections" unique_id=377608810]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_t7o64")
+script = ExtResource("2_fieldset")
+title = "Ændrer kontodetaljer"
+border_color = Color(0.28235295, 0.4392157, 0.34509805, 1)
+border_width = 1.0
+
+[node name="AccountForm" type="VBoxContainer" parent="ScrollContainer/Sections/AccountBox" unique_id=235298411]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="UsernameLabel" type="Label" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=763870640]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Brugernavn"
+
+[node name="UsernameInput" type="LineEdit" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=849959319]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PasswordLabel" type="Label" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=1705921130]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Nyt password"
+
+[node name="PasswordInput" type="LineEdit" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=113265054]
+unique_name_in_owner = true
+layout_mode = 2
+secret = true
+
+[node name="CurrentPasswordLabel" type="Label" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=221767676]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Nuværende password"
+
+[node name="CurrentPasswordInput" type="LineEdit" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=654659548]
+unique_name_in_owner = true
+layout_mode = 2
+secret = true
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=192965470]
+layout_mode = 2
+theme_override_constants/margin_top = 12
+
+[node name="SaveButton" type="Button" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=961510459]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("2_t7o64")
+text = "Gem ændringer"
+
+[node name="StatusLabel" type="Label" parent="ScrollContainer/Sections/AccountBox/AccountForm" unique_id=849021068]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+
+[node name="LogOutButton" type="Button" parent="ScrollContainer/Sections" unique_id=1004585832]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme = ExtResource("2_t7o64")
+text = "Log ud"
+
+[node name="BottomSpacer" type="Control" parent="ScrollContainer/Sections" unique_id=885632710]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="WaypointPopup" parent="." unique_id=1707932197 instance=ExtResource("6_wppop")]
+visible = false
+layout_mode = 1
+
+[connection signal="pressed" from="Header/ProfileIcon" to="." method="_on_profile_icon_pressed"]
+[connection signal="pressed" from="ScrollContainer/Sections/AccountBox/AccountForm/SaveButton" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="ScrollContainer/Sections/LogOutButton" to="." method="_on_logout_pressed"]

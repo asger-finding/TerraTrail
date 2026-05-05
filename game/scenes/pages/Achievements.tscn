@@ -6,6 +6,8 @@
 [ext_resource type="Theme" uid="uid://7nm0mfpak3nq" path="res://themes/interface.tres" id="2_t7o64"]
 [ext_resource type="FontFile" uid="uid://dlt4u2bubpxke" path="res://assets/typography/Capriola-Regular.ttf" id="3_0ytqp"]
 [ext_resource type="PackedScene" uid="uid://q2pcjfcou1td" path="res://scenes/components/UnlockedAchievementPopup.tscn" id="6_1syeu"]
+[ext_resource type="PackedScene" uid="uid://b4ncfjx7ccqv1" path="res://scenes/components/WaypointPopup.tscn" id="7_wppop"]
+[ext_resource type="PackedScene" uid="uid://dprfico1n8scene" path="res://scenes/components/ProfileIcon.tscn" id="8_picon"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_0ytqp"]
 font = ExtResource("3_0ytqp")
@@ -43,6 +45,11 @@ offset_right = -16.0
 offset_bottom = 117.0
 grow_horizontal = 2
 theme_override_constants/separation = 12
+
+[node name="ProfileIcon" parent="Header" instance=ExtResource("8_picon")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
 
 [node name="HeaderInfo" type="VBoxContainer" parent="Header" unique_id=2092867099]
 layout_mode = 2
@@ -156,5 +163,9 @@ custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 
 [node name="UnlockedAchievementPopup" parent="." unique_id=266227988 instance=ExtResource("6_1syeu")]
+visible = false
+layout_mode = 1
+
+[node name="WaypointPopup" parent="." instance=ExtResource("7_wppop")]
 visible = false
 layout_mode = 1

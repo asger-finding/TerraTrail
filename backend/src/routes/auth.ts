@@ -5,7 +5,8 @@ import { signToken } from '../auth/jwt.js';
 import { revokeToken } from '../auth/revoked.js';
 import type { AuthUser } from '../types/index.js';
 
-const USERNAME_RE = /^[A-Za-z0-9_-]{1,23}$/;
+export const USERNAME_RE = /^[A-Za-z0-9_-]{1,23}$/;
+export const MIN_PASSWORD_LENGTH = 8;
 
 export function createAuthRouter(): Router {
     const router = new Router({ prefix: '/api/auth' });
@@ -25,7 +26,7 @@ export function createAuthRouter(): Router {
             return;
         }
 
-        if (password.length < 8) {
+        if (password.length < MIN_PASSWORD_LENGTH) {
             ctx.status = 400;
             ctx.body = { error: 'Password skal være mindst 8 tegn' };
             return;

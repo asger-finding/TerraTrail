@@ -24,3 +24,11 @@ unique_name_in_owner = true
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="ClickArea" type="Button" parent="."]
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
+
+[connection signal="pressed" from="ClickArea" to="." method="_on_pressed"]

@@ -104,6 +104,19 @@ const selectCompletions = db.prepare<
      ORDER BY wc.completed_at DESC`
 );
 
+const selectMyWaypoints = db.prepare<
+    WaypointRow & { is_completed: number; is_favourited: number },
+    [number, number]
+>(
+    `SELECT w.*,
+            0 AS is_completed,
+            (wf.id IS NOT NULL) AS is_favourited
+     FROM waypoints w
+     LEFT JOIN waypoint_favourites wf ON wf.waypoint_id = w.id AND wf.user_id = ?
+     WHERE w.creator_id = ? AND w.active = 1
+     ORDER BY w.created DESC`
+);
+
 const updateStatement = db.prepare<WaypointRow, [string, string, number, number, number, number]>(
     `UPDATE waypoints SET title = ?, description = ?, difficulty = ?, updated = ?
      WHERE id = ? AND creator_id = ?
@@ -193,6 +206,10 @@ export function getFavourites(userId: number): WaypointResponse[] {
 
 export function getCompletions(userId: number): WaypointResponse[] {
     return selectCompletions.all(userId, userId).map(toFormattedResponse);
+}
+
+export function getMyWaypoints(userId: number): WaypointResponse[] {
+    return selectMyWaypoints.all(userId, userId).map(toFormattedResponse);
 }
 
 export function updateWaypoint(

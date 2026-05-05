@@ -27,6 +27,10 @@ func is_origin_set() -> bool:
 func set_origin(lon: float, lat: float) -> void:
 	world_origin_lon = lon
 	world_origin_lat = lat
+	# Spilleren er ved origin når denne kaldes - sæt også player_lon/lat så
+	# listeners ikke ser stale (0, 0) før Player._update_transform når at køre
+	player_lon = lon
+	player_lat = lat
 	_origin_lat_rad = lat * DEG2RAD
 	_cos_origin_lat = cos(_origin_lat_rad)
 	_origin_set = true

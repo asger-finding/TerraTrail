@@ -32,7 +32,7 @@ func _ready() -> void:
 	for child: TextureRect in find_child("DifficultyStars", true, false).get_children():
 		_stars.append(child)
 
-func open(data: Dictionary) -> void:
+func open(data: Dictionary, show_start: bool = true) -> void:
 	_waypoint_id = int(data["id"])
 	_waypoint_lon = float(data["longitude"])
 	_waypoint_lat = float(data["latitude"])
@@ -40,6 +40,7 @@ func open(data: Dictionary) -> void:
 	title_label.text = data["title"]
 	description_label.text = data["description"]
 	completed_badge.visible = data["isCompleted"]
+	start_button.visible = show_start
 	_update_stars(int(data["difficulty"]))
 	_update_favourite_visual()
 	_load_image_hint(data["imagePath"])

@@ -10,6 +10,7 @@ import {
     getWaypoint,
     getFavourites,
     getCompletions,
+    getMyWaypoints,
     updateWaypoint,
     deleteWaypoint,
     completeWaypoint,
@@ -25,7 +26,7 @@ mkdirSync(IMAGE_DIR, { recursive: true });
 async function readBody(ctx: { req: NodeJS.ReadableStream }): Promise<Buffer> {
     const chunks: Buffer[] = [];
     for await (const chunk of ctx.req) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array));
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
     }
     return Buffer.concat(chunks);
 }
@@ -46,7 +47,7 @@ export function createWaypointRouter(): Router {
     const router = new Router({ prefix: '/api/waypoints' });
 
     /**
-     * Create a new waypoint as a user
+     * Opret et nyt waypoint som en bruger
      */
     router.post('/', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -76,7 +77,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * List relevant waypoints in the bbox
+     * Returner waypoints i den givne bounding box
      */
     router.get('/', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -101,7 +102,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * List the current user's favourited waypoints
+     * Returnér brugerens favourited waypoints
      */
     router.get('/favourites', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -109,7 +110,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * List the current user's completed waypoints
+     * Returnér brugerens færdige waypoints
      */
     router.get('/completed', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -117,7 +118,15 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Complete a waypoint via the QR secret code
+     * Returnér waypoints der er oprettet af brugeren
+     */
+    router.get('/mine', async (ctx) => {
+        const user = ctx.state.user as AuthUser;
+        ctx.body = { waypoints: getMyWaypoints(user.playerId) };
+    });
+
+    /**
+     * Færdiggør et waypoint via QR-kode hemmeligheden
      */
     router.post('/complete', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -140,7 +149,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Get a waypoint by waypoint ID
+     * Få et waypoint fra dets ID
      */
     router.get('/:id', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -163,9 +172,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Upload an image hint for a waypoint. Body is the raw image bytes (any
-     * common format). The server resizes to 256x256, encodes as WebP at 80%
-     * quality, and stores it under data/waypoint_images/.
+     * Upload et billede for et waypoint, resize og ændrer format, og gem server-side.
      */
     router.post('/:id/image', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -214,7 +221,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Serve a waypoint's image hint. Anyone authenticated can view.
+     * Serve et waypoint-image.
      */
     router.get('/:id/image', async (ctx) => {
         const id = Number(ctx.params.id);
@@ -234,7 +241,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Update own waypoint title, description, difficulty
+     * Opdater eget waypoints titel, beskrivelse og sværhedsgrad
      */
     router.put('/:id', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -263,7 +270,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Soft delete own waypoint
+     * Soft delete et eget waypoint
      */
     router.delete('/:id', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -280,7 +287,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Get the QR code as a GIF
+     * Få en QR kode (som GIF)
      */
     router.get('/:id/qr', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -299,7 +306,7 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Toggle any waypoint as a favourite
+     * Toggle et waypoint som favourit
      */
     router.post('/:id/favourite', async (ctx) => {
         const user = ctx.state.user as AuthUser;

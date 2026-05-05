@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://d0gonmmt5vj6y"]
+
+[ext_resource type="Texture2D" uid="uid://bgpkjmhrokief" path="res://assets/ui/add_waypoint_button.webp" id="1_l2wjw"]
+[ext_resource type="Script" uid="uid://efgrcg621m43" path="res://scripts/CreateWaypointTile.gd" id="2_script"]
+
+[node name="CreateWaypointTile" type="TextureButton" unique_id=1857238728]
+custom_minimum_size = Vector2(64, 64)
+texture_normal = ExtResource("1_l2wjw")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_script")
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]

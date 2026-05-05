@@ -1,3 +1,4 @@
+import { SQLiteError } from 'bun:sqlite';
 import { db } from '../db.js';
 import type { PlayerDetails, MeResponse, LeaderboardEntry } from '../types/index.js';
 
@@ -22,6 +23,18 @@ const findByUsername = db.prepare<{ id: number; username: string; password_hash:
 
 const updateLastLogin = db.prepare<void, [number, number]>(
     'UPDATE users SET last_login = ? WHERE id = ?'
+);
+
+const selectPasswordHash = db.prepare<{ password_hash: string }, [number]>(
+    'SELECT password_hash FROM users WHERE id = ?'
+);
+
+const updateUsernameStatement = db.prepare<void, [string, number]>(
+    'UPDATE users SET username = ? WHERE id = ?'
+);
+
+const updatePasswordHashStatement = db.prepare<void, [string, number]>(
+    'UPDATE users SET password_hash = ? WHERE id = ?'
 );
 
 const addExpStatement = db.prepare<void, [number, number]>(
@@ -75,4 +88,35 @@ export async function authenticateUser(username: string, password: string): Prom
     updateLastLogin.run(now, user.id);
 
     return { playerId: user.id, username: user.username, created: user.created, lastLogin: now };
+}
+
+export async function updateCredentials(
+    playerId: number,
+    currentPassword: string,
+    newUsername: string | null,
+    newPassword: string | null
+): Promise<{ ok: true } | { error: string }> {
+    const row = selectPasswordHash.get(playerId);
+    if (!row) return { error: 'Bruger ikke fundet' };
+
+    const valid = await Bun.password.verify(currentPassword, row.password_hash);
+    if (!valid) return { error: 'Forkert nuværende password' };
+
+    if (newUsername !== null) {
+        try {
+            updateUsernameStatement.run(newUsername, playerId);
+        } catch (err: unknown) {
+            if (err instanceof SQLiteError && err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+                return { error: 'Brugernavn er allerede taget' };
+            }
+            throw err;
+        }
+    }
+
+    if (newPassword !== null) {
+        const hash = await Bun.password.hash(newPassword, { algorithm: 'argon2id' });
+        updatePasswordHashStatement.run(hash, playerId);
+    }
+
+    return { ok: true };
 }
