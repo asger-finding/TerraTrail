@@ -1,5 +1,9 @@
 # Map data
 backend/data/
+!backend/data/waypoint_images/
+!backend/data/waypoint_images/_default.webp
+!backend/data/profile_images/
+!backend/data/profile_images/_default.webp
 
 # Planetiler
 backend/scripts/planetiler.jar
