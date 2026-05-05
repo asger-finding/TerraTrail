@@ -1,8 +1,9 @@
 extends Node
 
 signal waypoint_activated(waypoint_id: int)
+signal waypoint_favourited(waypoint_id: int, is_favourited: bool)
 
-const BASE_URL := "http://localhost:3000"
+const BASE_URL := "http://77.42.126.76:3000"
 
 var _http: HTTPRequest
 

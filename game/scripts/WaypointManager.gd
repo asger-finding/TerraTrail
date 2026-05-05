@@ -13,6 +13,17 @@ func _ready() -> void:
 	tile_manager.tile_loaded.connect(_on_tile_loaded)
 	tile_manager.tile_unloaded.connect(_on_tile_unloaded)
 	Backend.waypoint_activated.connect(_on_waypoint_activated)
+	Backend.waypoint_favourited.connect(_on_waypoint_favourited)
+
+func _on_waypoint_favourited(waypoint_id: int, is_favourited: bool) -> void:
+	# Hold cached waypoint_data synkron med backend så popup'en viser den
+	# rigtige favorit-tilstand næste gang waypointet åbnes fra kortet.
+	var instance: Node = _by_id.get(waypoint_id)
+	if instance == null:
+		return
+	var data: Dictionary = instance.get_meta("waypoint_data", {})
+	data["isFavourited"] = is_favourited
+	instance.set_meta("waypoint_data", data)
 
 func _on_waypoint_activated(waypoint_id: int) -> void:
 	# Hent kun det netop aktiverede waypoint og spawn det direkte, så vi ikke

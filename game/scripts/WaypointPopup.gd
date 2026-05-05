@@ -83,6 +83,7 @@ func _on_favourite_pressed() -> void:
 	if result["ok"]:
 		_is_favourited = result["data"]["isFavourited"]
 		_update_favourite_visual()
+		Backend.waypoint_favourited.emit(_waypoint_id, _is_favourited)
 
 func _update_favourite_visual() -> void:
 	favourite_button.texture_normal = FAV_ACTIVE if _is_favourited else FAV_INACTIVE
