@@ -26,6 +26,12 @@ else
 fi
 git lfs install
 
+# Installer fonte til SVG-tekst (QR-titlen)
+echo "Installerer fontconfig og DejaVu sans-serif fonte ..."
+apt-get install -y fontconfig fonts-dejavu-core \
+    || dnf install -y fontconfig dejavu-sans-fonts \
+    || pacman -S --noconfirm fontconfig ttf-dejavu
+
 # Installer bun til /usr/local/bin
 # så alle brugere kan køre det
 if [ -x /usr/local/bin/bun ]; then
@@ -39,6 +45,7 @@ fi
 # Klon dette repo eller pull (som service-brugeren)
 if [ -d "$INSTALL_DIR/.git" ]; then
     echo "Repo findes allerede, puller seneste ændringer ..."
+    chown -R "$VPS_USER:$VPS_USER" "$INSTALL_DIR"
     sudo -u "$VPS_USER" git -C "$INSTALL_DIR" pull
 else
     echo "Kloner repo til $INSTALL_DIR ..."
