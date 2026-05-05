@@ -66,9 +66,7 @@ func _on_qr_detected(data: String) -> void:
 	status_label.text = "Verificerer ..."
 	_stop_camera()
 
-	var result: Dictionary = await Backend.scan_waypoint(
-		trimmed, Coordinates.player_lat, Coordinates.player_lon
-	)
+	var result: Dictionary = await Backend.scan_waypoint(trimmed)
 	if not result["ok"]:
 		status_label.text = "Fejl: %s" % result["error"]
 		await get_tree().create_timer(1.5).timeout
@@ -76,10 +74,14 @@ func _on_qr_detected(data: String) -> void:
 		return
 
 	var data_dict: Dictionary = result["data"]
-	if "activated" in data_dict:
-		status_label.text = "Waypoint aktiveret!"
+	if "pending" in data_dict:
+		status_label.text = "Tag et hint-billede"
 		await get_tree().create_timer(1.0).timeout
-		Router.push("image_hint_camera", {"waypoint_id": int(data_dict["waypointId"])})
+		Router.push("image_hint_camera", {
+			"waypoint_id": int(data_dict["waypointId"]),
+			"lat": Coordinates.player_lat,
+			"lon": Coordinates.player_lon
+		})
 		return
 
 	status_label.text = "Fundet!"

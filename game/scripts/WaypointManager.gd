@@ -12,6 +12,37 @@ var _active_waypoint_id: int = -1
 func _ready() -> void:
 	tile_manager.tile_loaded.connect(_on_tile_loaded)
 	tile_manager.tile_unloaded.connect(_on_tile_unloaded)
+	Backend.waypoint_activated.connect(_on_waypoint_activated)
+
+func _on_waypoint_activated(waypoint_id: int) -> void:
+	# Hent kun det netop aktiverede waypoint og spawn det direkte, så vi ikke
+	# refetcher hele tiles og risikerer at andre instanser blinker.
+	if waypoint_id in _by_id:
+		return
+	var http := Backend.request_waypoint(waypoint_id)
+	http.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			http.queue_free()
+			if result != HTTPRequest.RESULT_SUCCESS or code != 200:
+				push_error("waypoint fetch failed: result=%d code=%d" % [result, code])
+				return
+			var json := JSON.new()
+			json.parse(body.get_string_from_utf8())
+			_spawn_single(json.data["waypoint"])
+	)
+
+func _spawn_single(wp: Dictionary) -> void:
+	var id: int = int(wp["id"])
+	if id in _by_id:
+		return
+	var instance := WAYPOINT_SCENE.instantiate()
+	instance.position = Coordinates.lon_lat_to_world(float(wp["longitude"]), float(wp["latitude"]))
+	instance.set_meta("waypoint_id", id)
+	instance.set_meta("waypoint_data", wp)
+	if _active_waypoint_id != -1 and id != _active_waypoint_id:
+		instance.visible = false
+	add_child(instance)
+	_by_id[id] = instance
 
 func _process(_delta: float) -> void:
 	var route_path := get_tree().get_first_node_in_group("route_path")

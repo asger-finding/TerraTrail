@@ -1,4 +1,4 @@
-import { createWaypoint, scanWaypoint } from '../waypoints/db.js';
+import { createWaypoint, finalizeWaypoint } from '../waypoints/db.js';
 
 const CREATOR_ID = 1;
 const DESCRIPTION = 'Lorem ipsum og lidt beskrivelse';
@@ -10,6 +10,6 @@ const WAYPOINTS = [
 
 for (const { title, difficulty, lat, lon } of WAYPOINTS) {
     const row = createWaypoint(CREATOR_ID, title, DESCRIPTION, difficulty);
-    scanWaypoint(CREATOR_ID, row.qr_secret, lat, lon);
+    finalizeWaypoint(row.id, CREATOR_ID, `${row.id}.webp`, lat, lon);
     console.log(`+ ${row.id}: ${title}`);
 }

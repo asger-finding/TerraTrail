@@ -49,8 +49,8 @@ const insertWaypoint = db.prepare<WaypointRow, [number, string, string, number, 
      RETURNING *`
 );
 
-const activateStatement = db.prepare<{ id: number }, [number, number, number, number, number]>(
-    `UPDATE waypoints SET latitude = ?, longitude = ?, activated = 1, updated = ?
+const finalizeStatement = db.prepare<{ id: number }, [string, number, number, number, number, number]>(
+    `UPDATE waypoints SET image_path = ?, latitude = ?, longitude = ?, activated = 1, updated = ?
      WHERE id = ? AND creator_id = ? AND activated = 0
      RETURNING id`
 );
@@ -237,21 +237,21 @@ export function setWaypointImage(id: number, creatorId: number, filename: string
 }
 
 export type ScanResult =
-    | { activated: true; waypoint: WaypointRow }
+    | { pending: true; waypoint: WaypointRow }
     | { completed: true; waypoint: WaypointRow }
     | { error: string };
 
-export function scanWaypoint(
-    userId: number, qrSecret: string, latitude: number, longitude: number
-): ScanResult {
+/**
+ * Validerer QR-koden. Hvis ejeren scanner et uaktiveret waypoint returneres
+ * `pending`, og selve aktiveringen sker først når hint-billedet uploades.
+ */
+export function scanWaypoint(userId: number, qrSecret: string): ScanResult {
     const waypoint = selectBySecret.get(qrSecret);
     if (!waypoint) return { error: 'Waypoint ikke fundet' };
 
     if (waypoint.creator_id === userId) {
         if (waypoint.activated === 1) return { error: 'Egen waypoint, allerede aktiveret' };
-        const now = Date.now();
-        activateStatement.run(latitude, longitude, now, waypoint.id, userId);
-        return { activated: true, waypoint: { ...waypoint, latitude, longitude, activated: 1, updated: now } };
+        return { pending: true, waypoint };
     }
 
     if (waypoint.activated === 0) return { error: 'Waypoint ikke aktiveret endnu' };
@@ -265,6 +265,15 @@ export function scanWaypoint(
 
     addExp(userId, waypoint.difficulty * EXP_PER_DIFFICULTY);
     return { completed: true, waypoint };
+}
+
+/**
+ * Sætter image_path og aktiverer i ét UPDATE-statement med lat/lon.
+ */
+export function finalizeWaypoint(
+    id: number, creatorId: number, filename: string, latitude: number, longitude: number
+): boolean {
+    return finalizeStatement.get(filename, latitude, longitude, Date.now(), id, creatorId) !== null;
 }
 
 export function toggleFavourite(userId: number, waypointId: number): boolean {

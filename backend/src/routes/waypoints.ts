@@ -17,6 +17,7 @@ import {
     toggleFavourite,
     getWaypointQrInfo,
     setWaypointImage,
+    finalizeWaypoint,
     isWaypointCreator
 } from '../waypoints/db.js';
 
@@ -153,36 +154,29 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Scan et QR-kode. Hvis brugeren er creator og waypointet er uaktiveret -> aktiver
-     * med de medsendte GPS-koordinater. Ellers -> færdiggør (samme bruger må kun en gang).
+     * Scan et QR-kode. For ejeren (uaktiveret) returnerer vi `pending` uden at
+     * mutere. Den endelige aktivering sker når hint-billedet uploades. For
+     * andre brugere registrerer vi en gennemførsel.
      */
     router.post('/scan', async (ctx) => {
         const user = ctx.state.user as AuthUser;
-        const { qrSecret, latitude, longitude } = ctx.request.body as {
-            qrSecret?: string; latitude?: number; longitude?: number;
-        };
+        const { qrSecret } = ctx.request.body as { qrSecret?: string };
 
         if (!qrSecret) {
             ctx.status = 400;
             ctx.body = { error: 'qrSecret er påkrævet' };
             return;
         }
-        if (typeof latitude !== 'number' || typeof longitude !== 'number'
-            || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-            ctx.status = 400;
-            ctx.body = { error: 'Ugyldige koordinater' };
-            return;
-        }
 
-        const result = scanWaypoint(user.playerId, qrSecret, latitude, longitude);
+        const result = scanWaypoint(user.playerId, qrSecret);
         if ('error' in result) {
             ctx.status = 400;
             ctx.body = { error: result.error };
             return;
         }
 
-        if ('activated' in result) {
-            ctx.body = { activated: true, waypointId: result.waypoint.id };
+        if ('pending' in result) {
+            ctx.body = { pending: true, waypointId: result.waypoint.id };
         } else {
             ctx.body = { completed: true, waypointId: result.waypoint.id };
         }
@@ -212,7 +206,8 @@ export function createWaypointRouter(): Router {
     });
 
     /**
-     * Upload et billede for et waypoint, resize og ændrer format, og gem server-side.
+     * Upload hint-billede. Hvis lat/lon medsendes, aktiveres et uaktiveret
+     * waypoint i samme statement som billedet skrives.
      */
     router.post('/:id/image', async (ctx) => {
         const user = ctx.state.user as AuthUser;
@@ -227,6 +222,21 @@ export function createWaypointRouter(): Router {
             ctx.status = 403;
             ctx.body = { error: 'Waypoint ikke fundet eller er ikke din' };
             return;
+        }
+
+        const latStr = ctx.query.lat;
+        const lonStr = ctx.query.lon;
+        let lat: number | null = null;
+        let lon: number | null = null;
+        if (typeof latStr === 'string' && typeof lonStr === 'string') {
+            lat = Number(latStr);
+            lon = Number(lonStr);
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)
+                || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                ctx.status = 400;
+                ctx.body = { error: 'Ugyldige koordinater' };
+                return;
+            }
         }
 
         let raw: Buffer;
@@ -256,7 +266,11 @@ export function createWaypointRouter(): Router {
             return;
         }
 
-        setWaypointImage(id, user.playerId, filename);
+        if (lat !== null && lon !== null) {
+            finalizeWaypoint(id, user.playerId, filename, lat, lon);
+        } else {
+            setWaypointImage(id, user.playerId, filename);
+        }
         ctx.status = 204;
     });
 

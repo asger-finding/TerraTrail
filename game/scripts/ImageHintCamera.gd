@@ -2,16 +2,20 @@ extends Control
 
 @onready var camera_view: TextureRect = %CameraView
 @onready var status_label: Label = %StatusLabel
-@onready var trigger_button: Button = %TriggerButton
+@onready var trigger_button: TextureButton = %TriggerButton
 @onready var native_camera: Node = %NativeCamera
 
 var _waypoint_id: int
+var _lat: float
+var _lon: float
 var _camera_texture: ImageTexture
 var _last_image: Image
 var _busy: bool = false
 
 func _ready() -> void:
 	_waypoint_id = int(Router.meta["waypoint_id"])
+	_lat = float(Router.meta["lat"])
+	_lon = float(Router.meta["lon"])
 	native_camera.frame_available.connect(_on_frame)
 	native_camera.camera_permission_granted.connect(_on_permission_granted)
 	native_camera.camera_permission_denied.connect(_on_permission_denied)
@@ -51,10 +55,13 @@ func _on_trigger_pressed() -> void:
 	_stop_camera()
 
 	var bytes := _last_image.save_jpg_to_buffer(0.85)
-	var result: Dictionary = await Backend.upload_waypoint_image(_waypoint_id, bytes)
+	var result: Dictionary = await Backend.upload_waypoint_image(_waypoint_id, bytes, _lat, _lon)
 	if not result["ok"]:
 		status_label.text = "Fejl: %s" % result["error"]
 		await get_tree().create_timer(1.5).timeout
+		Router.goto("profile")
+		return
+	Backend.waypoint_activated.emit(_waypoint_id)
 	Router.goto("profile")
 
 func _stop_camera() -> void:

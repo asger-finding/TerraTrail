@@ -1,6 +1,8 @@
 extends Node
 
-const BASE_URL := "http://77.42.126.76:3000"
+signal waypoint_activated(waypoint_id: int)
+
+const BASE_URL := "http://localhost:3000"
 
 var _http: HTTPRequest
 
@@ -47,6 +49,9 @@ func request_tile(x: int, y: int, z: int) -> HTTPRequest:
 func request_waypoints(bbox: String) -> HTTPRequest:
 	return _authed_get("/api/waypoints?bbox=%s" % bbox)
 
+func request_waypoint(waypoint_id: int) -> HTTPRequest:
+	return _authed_get("/api/waypoints/%d" % waypoint_id)
+
 func request_favourites() -> HTTPRequest:
 	return _authed_get("/api/waypoints/favourites")
 
@@ -77,8 +82,11 @@ func request_profile_picture() -> HTTPRequest:
 func upload_profile_picture(bytes: PackedByteArray) -> Dictionary:
 	return await _upload_bytes("/api/me/picture", bytes)
 
-func upload_waypoint_image(waypoint_id: int, bytes: PackedByteArray) -> Dictionary:
-	return await _upload_bytes("/api/waypoints/%d/image" % waypoint_id, bytes)
+func upload_waypoint_image(waypoint_id: int, bytes: PackedByteArray, lat: float = NAN, lon: float = NAN) -> Dictionary:
+	var path := "/api/waypoints/%d/image" % waypoint_id
+	if not is_nan(lat) and not is_nan(lon):
+		path += "?lat=%s&lon=%s" % [str(lat), str(lon)]
+	return await _upload_bytes(path, bytes)
 
 func _upload_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
 	var http := HTTPRequest.new()
@@ -102,13 +110,9 @@ func _upload_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
 	http.request_raw(BASE_URL + path, headers, HTTPClient.METHOD_POST, bytes)
 	return await promise.async()
 
-func scan_waypoint(qr_secret: String, latitude: float, longitude: float) -> Dictionary:
+func scan_waypoint(qr_secret: String) -> Dictionary:
 	var url := BASE_URL + "/api/waypoints/scan"
-	var body := JSON.stringify({
-		"qrSecret": qr_secret,
-		"latitude": latitude,
-		"longitude": longitude
-	})
+	var body := JSON.stringify({"qrSecret": qr_secret})
 	return await _post(url, body, auth_headers())
 
 func create_waypoint(title: String, description: String, difficulty: int) -> Dictionary:
